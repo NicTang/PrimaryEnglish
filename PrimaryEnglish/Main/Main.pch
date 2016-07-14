@@ -1,0 +1,32 @@
+//
+//  Main.pch
+//  PrimaryEnglish
+//
+//  Created by Nic Downey on 16/7/11.
+//  Copyright © 2016年 Nic. All rights reserved.
+//
+
+#ifndef Main_pch
+#define Main_pch
+
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+
+
+//屏幕宽度
+#define KScreenWidth [UIScreen mainScreen].bounds.size.width
+//屏幕高度
+#define KScreenHeight [UIScreen mainScreen].bounds.size.height
+
+#define Color(r,g,b) [UIColor colorWithRed:(r)/255.0 green:(g)/255.0 blue:(b)/255.0 alpha:1.0]
+
+//首页信息
+#define KHomeUrlString @"http://app.ekaola.com/app/home"
+//课程详细信息
+#define KCourseDetailUrlString @"http://app.ekaola.com/app/v2/get_pkg_detail?version=2"
+//课程库信息
+#define kCourseUrlString @"http://app.ekaola.com/app/v2/get_pkgs?p=1&sp=%d&version=2"
+
+#endif /* Main_pch */
+
+

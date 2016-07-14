@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="10117" systemVersion="15F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="detailCell" rowHeight="100" id="KGk-i7-Jjw" customClass="NDDetailCell">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="100"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="320" height="99"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="VJO-p6-7mt">
+                        <rect key="frame" x="10" y="16" width="160" height="67"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="160" id="rfk-Mj-TgH"/>
+                        </constraints>
+                    </imageView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QHh-0V-sMp">
+                        <rect key="frame" x="190" y="14" width="100" height="14"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fyc-Bz-nND">
+                        <rect key="frame" x="190" y="48" width="30" height="35"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                        <state key="normal" title="免费试学">
+                            <color key="titleColor" red="0.42598290685659423" green="1" blue="0.43189786343115544" alpha="1" colorSpace="calibratedRGB"/>
+                        </state>
+                        <connections>
+                            <action selector="freeBtnClick:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="VUg-ix-JaI"/>
+                        </connections>
+                    </button>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="VJO-p6-7mt" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="10" id="5Un-9f-SdU"/>
+                    <constraint firstItem="fyc-Bz-nND" firstAttribute="leading" secondItem="QHh-0V-sMp" secondAttribute="leading" id="6vC-da-nSC"/>
+                    <constraint firstItem="VJO-p6-7mt" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="16" id="9Fx-wI-lbK"/>
+                    <constraint firstItem="QHh-0V-sMp" firstAttribute="leading" secondItem="VJO-p6-7mt" secondAttribute="trailing" constant="10" id="HP0-po-oXv"/>
+                    <constraint firstItem="fyc-Bz-nND" firstAttribute="top" secondItem="QHh-0V-sMp" secondAttribute="bottom" constant="20" id="NJH-Hr-KyB"/>
+                    <constraint firstItem="QHh-0V-sMp" firstAttribute="leading" secondItem="VJO-p6-7mt" secondAttribute="trailing" constant="20" id="OCg-Pd-ycs"/>
+                    <constraint firstItem="QHh-0V-sMp" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="14" id="VST-24-W7b"/>
+                    <constraint firstAttribute="trailing" secondItem="QHh-0V-sMp" secondAttribute="trailing" constant="30" id="VVH-GR-Iwu"/>
+                    <constraint firstAttribute="bottom" secondItem="fyc-Bz-nND" secondAttribute="bottom" constant="16" id="ZOR-Ef-sxQ"/>
+                    <constraint firstAttribute="trailing" secondItem="fyc-Bz-nND" secondAttribute="trailing" constant="100" id="eL8-3f-6mV"/>
+                    <constraint firstItem="fyc-Bz-nND" firstAttribute="leading" secondItem="VJO-p6-7mt" secondAttribute="trailing" constant="20" id="jof-q1-DhJ"/>
+                    <constraint firstItem="fyc-Bz-nND" firstAttribute="leading" secondItem="VJO-p6-7mt" secondAttribute="trailing" constant="10" id="k4L-ws-Bqt"/>
+                    <constraint firstAttribute="bottom" secondItem="VJO-p6-7mt" secondAttribute="bottom" constant="16" id="sAD-kX-tgf"/>
+                </constraints>
+                <variation key="default">
+                    <mask key="constraints">
+                        <exclude reference="HP0-po-oXv"/>
+                        <exclude reference="jof-q1-DhJ"/>
+                        <exclude reference="k4L-ws-Bqt"/>
+                    </mask>
+                </variation>
+            </tableViewCellContentView>
+            <connections>
+                <outlet property="iconView" destination="VJO-p6-7mt" id="LE7-lE-qmg"/>
+                <outlet property="isFreeBtn" destination="fyc-Bz-nND" id="J85-rj-qMO"/>
+                <outlet property="unitLabel" destination="QHh-0V-sMp" id="hcJ-3P-7Zv"/>
+            </connections>
+            <point key="canvasLocation" x="272" y="184"/>
+        </tableViewCell>
+    </objects>
+</document>
