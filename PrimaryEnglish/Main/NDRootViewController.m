@@ -18,7 +18,6 @@
 @end
 
 @implementation NDRootViewController
-
 - (void)viewDidLoad {
     
     [super viewDidLoad];
@@ -49,7 +48,7 @@
 }
 
 - (void)customizeTabBarItem
-{
+{    
     NSArray *images = @[@"tabbar_home",@"tabbar_message_center",@"tabbar_profile"];
     NSDictionary *unselectedDict = @{NSFontAttributeName : [UIFont systemFontOfSize:13],NSForegroundColorAttributeName:Color(117, 117, 117)};
     NSDictionary *selectedDict = @{NSFontAttributeName : [UIFont systemFontOfSize:13],NSForegroundColorAttributeName:Color(234, 103, 37)};

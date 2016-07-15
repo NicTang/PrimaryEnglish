@@ -13,7 +13,7 @@
 #import "NDDetailModel.h"
 #import "NDDetailCell.h"
 #import "DetailHeaderView.h"
-#import "UIImage+ImageFromColor.h"
+#import "UIImage+NewImage.h"
 
 @interface NDDetailController ()<UITableViewDelegate,UITableViewDataSource>
 
@@ -27,7 +27,7 @@
 {
     [super viewWillAppear:animated];
     [self.rdv_tabBarController setTabBarHidden:YES animated:YES];
-    self.automaticallyAdjustsScrollViewInsets = NO;
+//    self.automaticallyAdjustsScrollViewInsets = NO;
 }
 - (void)viewDidLoad {
     [super viewDidLoad];

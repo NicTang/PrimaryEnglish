@@ -7,9 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
-
+#import <UIKit/UIKit.h>
 @interface UserModel : NSObject
-@property (nonatomic,copy) NSString *icon;
+
+@property (nonatomic,strong) UIImage *image;
 @property (nonatomic,copy) NSString *phone;
 @property (nonatomic,copy) NSString *nickName;
+
 @end

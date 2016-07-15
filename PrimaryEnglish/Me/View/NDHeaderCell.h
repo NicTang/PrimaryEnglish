@@ -1,15 +1,15 @@
 //
-//  NDMeController.h
+//  NDHeaderCell.h
 //  PrimaryEnglish
 //
-//  Created by Nic Downey on 16/7/11.
+//  Created by Nic Downey on 16/7/14.
 //  Copyright © 2016年 Nic. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
 @class UserModel;
 
-@interface NDMeController : UIViewController
+@interface NDHeaderCell : UITableViewCell
 
 @property (nonatomic,strong) UserModel *model;
 

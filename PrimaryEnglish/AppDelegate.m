@@ -25,7 +25,11 @@
     [[UINavigationBar appearance]setBarStyle:UIBarStyleBlack];
     //导航栏的背景色
     [[UINavigationBar appearance]setBarTintColor:Color(234, 103, 37)];
+    //设置导航栏文字颜色
     [[UINavigationBar appearance]setTintColor:[UIColor whiteColor]];
+//    [UITabBar appearance].translucent = NO;
+//    [[UITabBar appearance]setTintColor:[UIColor whiteColor]];
+    
     //1、创建窗口
     self.window.backgroundColor = [UIColor whiteColor];
     //自定义控制器
