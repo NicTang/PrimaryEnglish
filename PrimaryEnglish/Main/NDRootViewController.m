@@ -49,7 +49,7 @@
 
 - (void)customizeTabBarItem
 {    
-    NSArray *images = @[@"tabbar_home",@"tabbar_message_center",@"tabbar_profile"];
+    NSArray *images = @[@"tabbar_home",@"tabbar_course",@"tabbar_profile"];
     NSDictionary *unselectedDict = @{NSFontAttributeName : [UIFont systemFontOfSize:13],NSForegroundColorAttributeName:Color(117, 117, 117)};
     NSDictionary *selectedDict = @{NSFontAttributeName : [UIFont systemFontOfSize:13],NSForegroundColorAttributeName:Color(234, 103, 37)};
     
@@ -57,9 +57,9 @@
     for(RDVTabBarItem *item in self.tabBar.items){
         item.unselectedTitleAttributes = unselectedDict;
         item.selectedTitleAttributes = selectedDict;
-        NSString *selectedImg = [NSString stringWithFormat:@"%@_selected",images[index]];
-        
-        [item setFinishedSelectedImage:[UIImage imageNamed:selectedImg] withFinishedUnselectedImage:[UIImage imageNamed:images[index]]];
+        NSString *unSelectedImg = [NSString stringWithFormat:@"%@_60X60",images[index]];
+        NSString *selectedImg = [NSString stringWithFormat:@"%@_selected_60X60",images[index]];
+        [item setFinishedSelectedImage:[UIImage imageNamed:selectedImg] withFinishedUnselectedImage:[UIImage imageNamed:unSelectedImg]];
         item.title = self.titles[index];
         
         index++;

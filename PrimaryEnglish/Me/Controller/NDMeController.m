@@ -39,7 +39,7 @@
 {
     if (_model==nil) {
         UserModel *model = [[UserModel alloc]init];
-        model.image = [UIImage imageNamed:@"minion"];
+        model.image = [UIImage imageNamed:@"placeHolderImage"];
         model.phone = @"18930422589";
         model.nickName = @"未登录";
         _model = model;
@@ -51,8 +51,8 @@
     NSArray *textArray1 = @[@"",@"已下载课程",@"已购课程"];
     NSArray *textArray2 = @[@"设置"];
     self.nameArray = @[textArray1,textArray2];
-    NSArray *imgArray1 = @[@"",@"已下载_icon_60X60",@"已购_icon_60X60"];
-    NSArray *imgArray2 = @[@"设置_icon_60X60"];
+    NSArray *imgArray1 = @[@"",@"download_60X60",@"purchased_60X60"];
+    NSArray *imgArray2 = @[@"setting_60X60"];
     self.iconArray = @[imgArray1,imgArray2];
 }
 - (void)createUI

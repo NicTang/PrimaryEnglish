@@ -26,6 +26,18 @@
                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <nil key="highlightedColor"/>
                     </label>
+                    <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="yBL-7X-L4n">
+                        <rect key="frame" x="110" y="-50" width="110" height="110"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ib5-XJ-xeS">
+                                <rect key="frame" x="10" y="80" width="80" height="30"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
                 </subviews>
                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
             </view>
@@ -41,6 +53,8 @@
             <size key="customSize" width="155" height="249"/>
             <connections>
                 <outlet property="iconView" destination="D0q-lC-Clg" id="e0p-Tm-1aR"/>
+                <outlet property="isFreeBgView" destination="yBL-7X-L4n" id="JJp-c9-7sj"/>
+                <outlet property="isFreeLabel" destination="Ib5-XJ-xeS" id="r9L-Gd-Px9"/>
                 <outlet property="nameLabel" destination="D2J-au-oI2" id="DIr-BY-xN9"/>
             </connections>
             <point key="canvasLocation" x="283" y="181"/>

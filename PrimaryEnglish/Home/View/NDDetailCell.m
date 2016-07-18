@@ -31,6 +31,9 @@
     [self.iconView setImageWithURL:[NSURL URLWithString:imgStr]];
     self.unitLabel.text = model.title;
     self.isFreeBtn.contentMode = UIViewContentModeLeft;
+    self.isFreeBtn.layer.borderWidth = 1;
+    self.isFreeBtn.layer.cornerRadius = 6;
+    self.isFreeBtn.layer.borderColor = Color(109, 255, 110).CGColor;
     self.isFreeBtn.hidden = [model.free doubleValue]==0;
     self.selectionStyle = UITableViewCellSelectionStyleNone;
 }

@@ -13,6 +13,8 @@
 @interface NDCourseCell()
 @property (weak, nonatomic) IBOutlet UILabel *nameLabel;
 @property (weak, nonatomic) IBOutlet UIImageView *iconView;
+@property (weak, nonatomic) IBOutlet UIView *isFreeBgView;
+@property (weak, nonatomic) IBOutlet UILabel *isFreeLabel;
 
 @end
 @implementation NDCourseCell
@@ -28,5 +30,16 @@
     NSString *imgStr = [NSString stringWithFormat:@"http://app.ekaola.com/%@",model.cover];
     [self.iconView setImageWithURL:[NSURL URLWithString:imgStr]];
     self.nameLabel.text = model.title;
+    
+    [self.isFreeLabel setTextColor:[UIColor whiteColor]];
+    self.isFreeBgView.transform = CGAffineTransformMakeRotation(M_PI_4);
+    if ([model.price doubleValue]==0) {
+        self.isFreeLabel.text = @"免费";
+        self.isFreeBgView.backgroundColor = [UIColor greenColor];
+    }else
+    {
+        self.isFreeLabel.text = [NSString stringWithFormat:@"¥ %d",[model.price intValue]];
+        self.isFreeBgView.backgroundColor = [UIColor redColor];
+    }
 }
 @end
