@@ -14,6 +14,7 @@
 #import "NDDetailCell.h"
 #import "DetailHeaderView.h"
 #import "UIImage+NewImage.h"
+#import "UnitDetailController.h"
 
 @interface NDDetailController ()<UITableViewDelegate,UITableViewDataSource>
 
@@ -78,14 +79,13 @@
         //刷新cell
         [self.tableView reloadData];
         
-//        NSLog(@"responseObject:%@",responseObject);
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (error) {
             NSLog(@"error :%@",error.localizedDescription);
         }
     }];
 }
-
+#pragma mark - UITableViewDataSource数据源方法
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     return self.cellDataArray.count;
@@ -96,6 +96,18 @@
     cell.model = self.cellDataArray[indexPath.row];
     
     return cell;
+}
+#pragma mark - UITableViewDelegate代理方法
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    UnitDetailController *unitVc = [[UnitDetailController alloc]init];
+    
+    self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc]initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:nil];
+    //传递参数
+    unitVc.senceid = [self.cellDataArray[indexPath.row] senceid];
+    //设置导航栏标题
+    unitVc.title = [self.cellDataArray[indexPath.row] title];
+    [self.navigationController pushViewController:unitVc animated:YES];
 }
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {

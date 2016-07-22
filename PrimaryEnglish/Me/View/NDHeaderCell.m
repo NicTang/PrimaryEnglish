@@ -30,6 +30,7 @@
     _model = model;
     UIImage *image = [UIImage clipImageWithImage:model.image setSize:self.iconView.frame.size];
     self.iconView.image = image;
+        
 //    self.iconView.image = model.image;
     self.nickNameLabel.text = model.nickName;
 //    self.iconView.layer.cornerRadius = 50;

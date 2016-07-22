@@ -28,7 +28,6 @@
     [super viewWillAppear:animated];
     [self.rdv_tabBarController setTabBarHidden:YES animated:YES];
 }
-
 - (void)viewDidLoad {
     [super viewDidLoad];
     _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, KScreenWidth, KScreenHeight) style:UITableViewStyleGrouped];
@@ -82,17 +81,16 @@
         nickNameVc.title = @"修改昵称";
         //上一个界面传来的昵称，用于在修改昵称界面显示其名字
         nickNameVc.nickName = self.user.nickName;
-        
         nickNameVc.nameblock = ^(NSString *nickName){
             self.user.nickName = nickName;
+//            [tableView reloadData];
             [tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationRight];
+            if(self.showUserBlock){
+                self.showUserBlock(self.user);
+            }
         };
         
         [self.navigationController pushViewController:nickNameVc animated:YES];
-    }
-    
-    if(self.showUserBlock){
-        self.showUserBlock(self.user);
     }
 }
 
@@ -107,7 +105,32 @@
 {
     return 10;
 }
-
+/**
+ *  自定义弹出提示框
+ */
+- (void)alertViewWithTitle:(NSString *)title
+{
+    __block UILabel *label = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, 180, 36)];
+    label.center = self.view.center;
+    label.layer.cornerRadius = 10;
+    label.clipsToBounds = YES;
+    label.numberOfLines = 0;
+    label.textAlignment = NSTextAlignmentCenter;
+    [label setBackgroundColor:[UIColor lightGrayColor]];
+    label.alpha = 0.7;
+    NSDictionary *dict = @{NSFontAttributeName:[UIFont boldSystemFontOfSize:15],NSForegroundColorAttributeName:[UIColor whiteColor]};
+    NSAttributedString *attrs = [[NSAttributedString alloc]initWithString:title attributes:dict];
+    [label setAttributedText:attrs];
+    
+    [self.view addSubview:label];
+    
+    [UIView animateWithDuration:3.0 animations:^{
+        label.alpha = 1;
+    } completion:^(BOOL finished) {
+        [label removeFromSuperview];
+        label = nil;
+    }];
+}
 - (void)modifyUserIconByActionSheet
 {
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:@"请选择更改头像方式" preferredStyle:UIAlertControllerStyleActionSheet];
@@ -179,6 +202,10 @@
         cell.icon = newImage;
         //刷新这一行
         [_tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationBottom];
+//        [_tableView reloadData];
+        if(self.showUserBlock){
+            self.showUserBlock(self.user);
+        }
     }
     //返回
     [picker dismissViewControllerAnimated:YES completion:nil];

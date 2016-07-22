@@ -26,7 +26,25 @@
 #define KCourseDetailUrlString @"http://app.ekaola.com/app/v2/get_pkg_detail?version=2"
 //课程库信息
 #define kCourseUrlString @"http://app.ekaola.com/app/v2/get_pkgs?p=1&sp=%d&version=2"
+//课程每个单元信息
+#define KUnitDetailString @"http://app.ekaola.com/app/get_sence_json?pkgid=%@"
 
+//登录提交
+#define kLoginCommitString @"http://app.ekaola.com/app/login"
+//手机获取验证码
+#define KPhoneCodeString @"http://app.ekaola.com/app/phone_auth?phone=%@"
+//修改昵称
+#define KModifyNameUrl @"http://app.ekaola.com/app/info/update/nickname?version=2"
+//修改头像
+#define KModifyIconUrl @"http://app.ekaola.com/app/upload_head_image"
+
+
+#define KWeChatAppIDString @"wx7c6ce7f7f9211fc5"
+#define KWeChatAppSecretString @"5c3046d4dbeda1fe6fa2f3603b85a1cf"
+
+#import "NDLoginController.h"
+//用户模型存储路径
+#define NDModelSavePath [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:@"user.txt"]
 #endif /* Main_pch */
 
 

@@ -8,10 +8,11 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-@interface UserModel : NSObject
+@interface UserModel : NSObject<NSCoding>
 
 @property (nonatomic,strong) UIImage *image;
 @property (nonatomic,copy) NSString *phone;
 @property (nonatomic,copy) NSString *nickName;
-
+@property (nonatomic,copy) NSString *code;
+@property (nonatomic,assign) NSInteger status;
 @end

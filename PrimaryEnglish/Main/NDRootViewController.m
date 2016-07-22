@@ -57,8 +57,8 @@
     for(RDVTabBarItem *item in self.tabBar.items){
         item.unselectedTitleAttributes = unselectedDict;
         item.selectedTitleAttributes = selectedDict;
-        NSString *unSelectedImg = [NSString stringWithFormat:@"%@_60X60",images[index]];
-        NSString *selectedImg = [NSString stringWithFormat:@"%@_selected_60X60",images[index]];
+        NSString *unSelectedImg = [NSString stringWithFormat:@"%@_30X30",images[index]];
+        NSString *selectedImg = [NSString stringWithFormat:@"%@_selected_30X30",images[index]];
         [item setFinishedSelectedImage:[UIImage imageNamed:selectedImg] withFinishedUnselectedImage:[UIImage imageNamed:unSelectedImg]];
         item.title = self.titles[index];
         

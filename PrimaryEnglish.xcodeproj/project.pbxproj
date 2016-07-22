@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F00216061D40A2D8006AB840 /* UnitDetailController.m in Sources */ = {isa = PBXBuildFile; fileRef = F00216051D40A2D8006AB840 /* UnitDetailController.m */; };
+		F00216AE1D41EDE4006AB840 /* UnitMenuController.m in Sources */ = {isa = PBXBuildFile; fileRef = F00216AD1D41EDE4006AB840 /* UnitMenuController.m */; };
 		F00F8DBD1D3362B200896FC9 /* NDHomeModel.m in Sources */ = {isa = PBXBuildFile; fileRef = F00F8DBC1D3362B200896FC9 /* NDHomeModel.m */; };
 		F00F8DC11D33636100896FC9 /* NDHomeCell.m in Sources */ = {isa = PBXBuildFile; fileRef = F00F8DBF1D33636100896FC9 /* NDHomeCell.m */; };
 		F00F8DC21D33636100896FC9 /* NDHomeCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = F00F8DC01D33636100896FC9 /* NDHomeCell.xib */; };
@@ -128,6 +130,8 @@
 		F060A3D21D38D918009A1A06 /* ShareAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = F060A3D11D38D918009A1A06 /* ShareAlertView.m */; };
 		F060A3D41D38D946009A1A06 /* ShareAlertView.xib in Resources */ = {isa = PBXBuildFile; fileRef = F060A3D31D38D946009A1A06 /* ShareAlertView.xib */; };
 		F0B4B4F11D3CA1C100D4E6C8 /* cancal.png in Resources */ = {isa = PBXBuildFile; fileRef = F0B4B4F01D3CA1C100D4E6C8 /* cancal.png */; };
+		F0DC027C1D3CCDA5004EC77C /* NDLoginController.m in Sources */ = {isa = PBXBuildFile; fileRef = F0DC027A1D3CCDA5004EC77C /* NDLoginController.m */; };
+		F0DC027D1D3CCDA5004EC77C /* NDLoginController.xib in Resources */ = {isa = PBXBuildFile; fileRef = F0DC027B1D3CCDA5004EC77C /* NDLoginController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -148,6 +152,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		F00216041D40A2D8006AB840 /* UnitDetailController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UnitDetailController.h; sourceTree = "<group>"; };
+		F00216051D40A2D8006AB840 /* UnitDetailController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UnitDetailController.m; sourceTree = "<group>"; };
+		F00216AC1D41EDE4006AB840 /* UnitMenuController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UnitMenuController.h; sourceTree = "<group>"; };
+		F00216AD1D41EDE4006AB840 /* UnitMenuController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UnitMenuController.m; sourceTree = "<group>"; };
 		F00F8DBB1D3362B200896FC9 /* NDHomeModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NDHomeModel.h; sourceTree = "<group>"; };
 		F00F8DBC1D3362B200896FC9 /* NDHomeModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NDHomeModel.m; sourceTree = "<group>"; };
 		F00F8DBE1D33636100896FC9 /* NDHomeCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NDHomeCell.h; sourceTree = "<group>"; };
@@ -354,6 +362,9 @@
 		F060A3D11D38D918009A1A06 /* ShareAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShareAlertView.m; sourceTree = "<group>"; };
 		F060A3D31D38D946009A1A06 /* ShareAlertView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ShareAlertView.xib; sourceTree = "<group>"; };
 		F0B4B4F01D3CA1C100D4E6C8 /* cancal.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cancal.png; sourceTree = "<group>"; };
+		F0DC02791D3CCDA5004EC77C /* NDLoginController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NDLoginController.h; sourceTree = "<group>"; };
+		F0DC027A1D3CCDA5004EC77C /* NDLoginController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NDLoginController.m; sourceTree = "<group>"; };
+		F0DC027B1D3CCDA5004EC77C /* NDLoginController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NDLoginController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -769,6 +780,10 @@
 				F04BCB321D3341A400CCEDC6 /* NDHomeController.m */,
 				F00F8DC71D338B6A00896FC9 /* NDDetailController.h */,
 				F00F8DC81D338B6A00896FC9 /* NDDetailController.m */,
+				F00216041D40A2D8006AB840 /* UnitDetailController.h */,
+				F00216051D40A2D8006AB840 /* UnitDetailController.m */,
+				F00216AC1D41EDE4006AB840 /* UnitMenuController.h */,
+				F00216AD1D41EDE4006AB840 /* UnitMenuController.m */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -812,6 +827,9 @@
 				F060A3491D3785C3009A1A06 /* NDMeInfoController.m */,
 				F060A3581D387190009A1A06 /* ModifyNickNameController.h */,
 				F060A3591D387190009A1A06 /* ModifyNickNameController.m */,
+				F0DC02791D3CCDA5004EC77C /* NDLoginController.h */,
+				F0DC027A1D3CCDA5004EC77C /* NDLoginController.m */,
+				F0DC027B1D3CCDA5004EC77C /* NDLoginController.xib */,
 				F060A3501D378F97009A1A06 /* NDSettingController.h */,
 				F060A3511D378F97009A1A06 /* NDSettingController.m */,
 				F060A3CD1D38D623009A1A06 /* SettingAboutController.h */,
@@ -1085,6 +1103,7 @@
 				F060A3C01D38CE0D009A1A06 /* download_30X30.png in Resources */,
 				F060A3AC1D38CE0D009A1A06 /* tabbar_course_30X30.png in Resources */,
 				F060A3BF1D38CE0D009A1A06 /* phone_selected_60X60@2X.png in Resources */,
+				F0DC027D1D3CCDA5004EC77C /* NDLoginController.xib in Resources */,
 				F060A3B61D38CE0D009A1A06 /* tabbar_profile_selected_30X30.png in Resources */,
 				F060A3B91D38CE0D009A1A06 /* code_60X60@2X.png in Resources */,
 				F060A3C51D38CE0D009A1A06 /* setting_30X30.png in Resources */,
@@ -1119,6 +1138,7 @@
 				F04BCAD91D33343100CCEDC6 /* RDVTabBarItem.m in Sources */,
 				F00F8DDE1D34867E00896FC9 /* NDCourseCell.m in Sources */,
 				F04BCB0B1D33344000CCEDC6 /* UIRefreshControl+AFNetworking.m in Sources */,
+				F0DC027C1D3CCDA5004EC77C /* NDLoginController.m in Sources */,
 				F04BCB081D33344000CCEDC6 /* UIButton+AFNetworking.m in Sources */,
 				F00F8E5D24BC682D00896FC9 /* NDSingleUnitController.m in Sources */,
 				F060A3411D3781C6009A1A06 /* MeNameCell.m in Sources */,
@@ -1160,6 +1180,7 @@
 				F00F8E1E24BAD09300896FC9 /* UIScrollView+MJRefresh.m in Sources */,
 				F04BCAFF1D33344000CCEDC6 /* AFNetworkReachabilityManager.m in Sources */,
 				F04BCACE1D33340900CCEDC6 /* JSONKeyMapper.m in Sources */,
+				F00216061D40A2D8006AB840 /* UnitDetailController.m in Sources */,
 				F00F8DD71D33A50A00896FC9 /* DetailHeaderView.m in Sources */,
 				F04BCACD1D33340900CCEDC6 /* JSONModel+networking.m in Sources */,
 				F00F8E1424BAD09300896FC9 /* MJRefreshAutoStateFooter.m in Sources */,
@@ -1178,6 +1199,7 @@
 				F00F8E1D24BAD09300896FC9 /* UIScrollView+MJExtension.m in Sources */,
 				F04BCB0C1D33344000CCEDC6 /* UIWebView+AFNetworking.m in Sources */,
 				F04BCB051D33344000CCEDC6 /* AFImageDownloader.m in Sources */,
+				F00216AE1D41EDE4006AB840 /* UnitMenuController.m in Sources */,
 				F00F8E1324BAD09300896FC9 /* MJRefreshAutoNormalFooter.m in Sources */,
 				F04BCB061D33344000CCEDC6 /* AFNetworkActivityIndicatorManager.m in Sources */,
 				F00F8E1124BAD09300896FC9 /* MJRefreshHeader.m in Sources */,

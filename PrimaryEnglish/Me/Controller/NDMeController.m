@@ -5,7 +5,6 @@
 //  Created by Nic Downey on 16/7/11.
 //  Copyright © 2016年 Nic. All rights reserved.
 //
-
 #import "NDMeController.h"
 #import "UserModel.h"
 #import "NDHeaderCell.h"
@@ -14,12 +13,11 @@
 #import "RDVTabBarController.h"
 #import "NDSettingController.h"
 
-@interface NDMeController ()<UITableViewDataSource,UITableViewDelegate>
+@interface NDMeController ()<UITableViewDataSource,UITableViewDelegate,SettingControllerDelegate>
 
 @property (nonatomic,strong) UITableView *tableView;
 @property (nonatomic,strong) NSArray *iconArray;
 @property (nonatomic,strong) NSArray *nameArray;
-
 @end
 
 @implementation NDMeController
@@ -30,19 +28,21 @@
 }
 
 - (void)viewDidLoad {
-    
     [super viewDidLoad];
     [self prepareData];
     [self createUI];
+//    NSLog(@"%@",NDModelSavePath);
 }
 - (UserModel *)model
 {
     if (_model==nil) {
-        UserModel *model = [[UserModel alloc]init];
-        model.image = [UIImage imageNamed:@"placeHolderImage"];
-        model.phone = @"18930422589";
-        model.nickName = @"未登录";
-        _model = model;
+        _model = [NSKeyedUnarchiver unarchiveObjectWithFile:NDModelSavePath];
+        if (_model==nil||_model.status==1) {
+            _model = [[UserModel alloc]init];
+            _model.image = [UIImage imageNamed:@"placeHolderImage"];
+            _model.nickName = @"未登录";
+            _model.status = 1;
+        }
     }
     return _model;
 }
@@ -51,9 +51,10 @@
     NSArray *textArray1 = @[@"",@"已下载课程",@"已购课程"];
     NSArray *textArray2 = @[@"设置"];
     self.nameArray = @[textArray1,textArray2];
-    NSArray *imgArray1 = @[@"",@"download_60X60",@"purchased_60X60"];
-    NSArray *imgArray2 = @[@"setting_60X60"];
+    NSArray *imgArray1 = @[@"",@"download_30X30",@"purchased_30X30"];
+    NSArray *imgArray2 = @[@"setting_30X30"];
     self.iconArray = @[imgArray1,imgArray2];
+    
 }
 - (void)createUI
 {
@@ -81,6 +82,7 @@
     
 }
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
     if (indexPath.section==0&&indexPath.row==0) {
         NDHeaderCell *cell = [tableView dequeueReusableCellWithIdentifier:@"headerCell" forIndexPath:indexPath];
         cell.model = self.model;
@@ -99,21 +101,42 @@
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (indexPath.section==0&&indexPath.row==0) {
-        NDMeInfoController *meInfoVc = [[NDMeInfoController alloc]init];
-        meInfoVc.user = self.model;
-        meInfoVc.title = @"我的信息";
-        meInfoVc.showUserBlock = ^(UserModel *model){
-            self.model = model;
+    //未登录
+    if (self.model.status) {
+        
+        NDLoginController *login = [[NDLoginController alloc]init];
+        login.userLoginModel = self.model;
+        
+        login.userLoginBlock = ^(UserModel *loginModel){
+            self.model = loginModel;
             [self.tableView reloadData];
-//            [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationRight];
+//            NSLog(@"%@-%@-%@-%@-%ld",self.model.image,self.model.phone,self.model.nickName,self.model.code,(long)self.model.status);
+            // 存储数据
+            [NSKeyedArchiver archiveRootObject:self.model toFile:NDModelSavePath];
         };
-        [self.navigationController pushViewController:meInfoVc animated:YES];
-    }else if (indexPath.section==1)
+        [self presentViewController:login animated:YES completion:nil];
+    }else
     {
-        NDSettingController *settingVc = [[NDSettingController alloc]init];
-        settingVc.title = self.nameArray[indexPath.section][indexPath.row];
-        [self.navigationController pushViewController:settingVc animated:YES];
+        if (indexPath.section==0&&indexPath.row==0) {
+            NDMeInfoController *meInfoVc = [[NDMeInfoController alloc]init];
+            meInfoVc.user = self.model;
+            meInfoVc.title = @"我的信息";
+            meInfoVc.showUserBlock = ^(UserModel *model){
+                self.model = model;
+                [self.tableView reloadData];
+                // 存储数据
+//                NSLog(@"%@-%@-%@-%@-%ld",self.model.image,self.model.phone,self.model.nickName,self.model.code,(long)self.model.status);
+                [NSKeyedArchiver archiveRootObject:self.model toFile:NDModelSavePath];
+            };
+            [self.navigationController pushViewController:meInfoVc animated:YES];
+        }else if (indexPath.section==1)
+        {
+            NDSettingController *settingVc = [[NDSettingController alloc]init];
+            //成为代理
+            settingVc.delegate = self;
+            settingVc.title = self.nameArray[indexPath.section][indexPath.row];
+            [self.navigationController pushViewController:settingVc animated:YES];
+        }
     }
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -127,5 +150,13 @@
 {
     return 16;
 }
-
+#pragma mark - SettingControllerDelegate代理方法
+- (void)settingController:(NDSettingController *)vc logout:(int)status
+{
+    self.model.status = status;
+    [NSKeyedArchiver archiveRootObject:self.model toFile:NDModelSavePath];
+    self.model.image = [UIImage imageNamed:@"placeholderImage"];
+    self.model.nickName = @"未登录";
+    [self.tableView reloadData];
+}
 @end

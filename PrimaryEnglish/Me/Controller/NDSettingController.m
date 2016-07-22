@@ -103,6 +103,11 @@
 }
 - (void)logOutClick:(UIButton *)button
 {
-    
+    NSLog(@"logOutClick");
+    if ([self.delegate respondsToSelector:@selector(settingController:logout:)]) {
+        //将登录状态传给上一界面，未登录为1
+        [self.delegate settingController:self logout:1];
+    }
+    [self.navigationController popViewControllerAnimated:YES];
 }
 @end
