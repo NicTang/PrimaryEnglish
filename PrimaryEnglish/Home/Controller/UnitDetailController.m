@@ -17,9 +17,7 @@
 
 @interface UnitDetailController ()<UnitTabBarDelegate,UITableViewDelegate,UITableViewDataSource,SelectCourseHeaderDelegate>
 
-//@property (nonatomic,strong) NSArray *imgArray;
 @property (nonatomic,strong) NSArray *mp3Array;
-@property (nonatomic,strong) NSDictionary *imgDict;
 @property (nonatomic,strong) NSDictionary *mp3Dict;
 @property (nonatomic,strong) NSMutableArray *totalDataArray;
 
@@ -47,26 +45,12 @@
     }
     return _selectedIndexPath;
 }
-//- (NSArray *)imgArray
-//{
-//    if (!_imgArray) {
-//        _imgArray = [NSArray array];
-//    }
-//    return _imgArray;
-//}
 - (NSArray *)mp3Array
 {
     if (!_mp3Array) {
         _mp3Array = [NSArray array];
     }
     return _mp3Array;
-}
-- (NSDictionary *)imgDict
-{
-    if (!_imgDict) {
-        _imgDict = [NSDictionary dictionary];
-    }
-    return _imgDict;
 }
 - (NSDictionary *)mp3Dict
 {
@@ -84,70 +68,73 @@
 }
 - (void)requestTotalDataArray
 {
-    //创建任务组变量
-//    dispatch_group_t group=dispatch_group_create();
-//    //获取全局的并行队列
-//    dispatch_queue_t queue=dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-    //在任务组中添加任务
-//    dispatch_group_async(group, queue, ^{
-        for (NDDetailModel *model in self.unitsArray) {
-            [self requestDataWithSenceid:model.senceid completion:^(NSArray *arr) {
-//                NSLog(@"dict:%ld-%@",dict.count,dict);
-//                [self.totalDataArray addObject:dict];
-            }];
-        }
-        NSLog(@"totalDataArray:%ld",self.totalDataArray.count);
-//    });
-//    dispatch_group_notify(group, dispatch_get_main_queue(), ^{
-////        NSLog(@"totalDataArray:%ld",self.totalDataArray.count);
-//        self.tabBar.currentPageLabel.text = [NSString stringWithFormat:@"1/%ld",self.totalDataArray.count];
-//    });
+    for (NDDetailModel *model in self.unitsArray) {
+        [self requestDataWithSenceid:model.senceid completion:^(NSDictionary *imageDict) {
+            NSLog(@"dictionary:%ld-%@",imageDict.count,imageDict);
+            [self.totalDataArray addObject:imageDict];
+        }];
+    }
 }
-
 - (void)refreshUI
 {
-    //创建任务组变量
-    dispatch_group_t group=dispatch_group_create();
-    //获取全局的并行队列
+//    //创建任务组变量
+//    dispatch_group_t group=dispatch_group_create();
+//    //获取全局的并行队列
     dispatch_queue_t queue=dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+//    //在任务组中添加任务
+//    dispatch_group_async(group, queue, ^{
+//        
+//        [self requestDataWithSenceid:self.senceid completion:^(NSDictionary *imageDict) {
+//            NSArray *imgArray = imageDict[self.senceid];
+//            NSLog(@"arrcount:%ld-%@",imgArray.count,imgArray);
+//            //主线程上更新UI
+//            dispatch_async(dispatch_get_main_queue(), ^{
+//                for (int i = 0 ; i<imgArray.count; i++) {
+//                    UIImageView *imageView = [[UIImageView alloc]initWithFrame:CGRectMake(i*KScreenWidth, 0, KScreenWidth, KScreenHeight-64-49)];
+//                    //!!!   URL != String
+//                    NSURL *url = [NSURL URLWithString:imgArray[i]];
+//                    [imageView setImageWithURL:url];
+//                    //设置垂直方向不能滚动
+//                    self.scrollView.contentSize = CGSizeMake(imgArray.count*KScreenWidth, 0);
+//                    [self.scrollView addSubview:imageView];
+//                }
+//            });
+//        }];
+//    });
+//    //当group中的所有任务执行完毕后，在队列中执行block
+//    dispatch_group_notify(group, dispatch_get_main_queue(), ^{
+//        [self requestTotalDataArray];
+//    });
     
     //获取一个自定义的串行队列（顺序执行）
 //    dispatch_queue_t queue = dispatch_queue_create("queue", NULL);
     
-    //在任务组中添加任务
-    dispatch_group_async(group, queue, ^{
-        
-        [self requestDataWithSenceid:self.senceid completion:^(NSArray *arr) {
-//            NSLog(@"dict:%ld-%@",dict.count,dict);
-//            NSArray *array = dict[self.senceid];
-            NSLog(@"arrcount:%ld-%@",arr.count,arr);
+    //将任务放在队列中，同步执行，(不会创建子线程)
+    dispatch_async(queue, ^{
+        [self requestDataWithSenceid:self.senceid completion:^(NSDictionary *imageDict) {
+            NSArray *imgArray = imageDict[self.senceid];
+            NSLog(@"arrcount:%ld-%@",imgArray.count,imgArray);
             //主线程上更新UI
             dispatch_async(dispatch_get_main_queue(), ^{
-                for (int i = 0 ; i<arr.count; i++) {
+                for (int i = 0 ; i<imgArray.count; i++) {
                     UIImageView *imageView = [[UIImageView alloc]initWithFrame:CGRectMake(i*KScreenWidth, 0, KScreenWidth, KScreenHeight-64-49)];
                     //!!!   URL != String
-                    NSURL *url = [NSURL URLWithString:arr[i]];
+                    NSURL *url = [NSURL URLWithString:imgArray[i]];
                     [imageView setImageWithURL:url];
                     //设置垂直方向不能滚动
-                    self.scrollView.contentSize = CGSizeMake(arr.count*KScreenWidth, 0);
+                    self.scrollView.contentSize = CGSizeMake(imgArray.count*KScreenWidth, 0);
                     [self.scrollView addSubview:imageView];
                 }
             });
         }];
     });
-    //在任务组中添加任务
-//    for (NDDetailModel *model in self.unitsArray) {
-//        dispatch_group_async(group, queue, ^{
-//            [self requestDataWithSenceid:model.senceid completion:^(NSArray *array, NSDictionary *dict) {
-//                NSLog(@"dict:%ld-%@",dict.count,dict);
-////                [self.totalDataArray addObject:dict];
-//            }];
-//        });
-//    }
-    //当group中的所有任务执行完毕后，在队列中执行block
-    dispatch_group_notify(group, dispatch_get_main_queue(), ^{
-//        [self requestTotalDataArray];
-        NSLog(@"totalDataArray:%ld",self.totalDataArray.count);
+    dispatch_async(queue, ^{
+        for (NDDetailModel *model in self.unitsArray) {
+            [self requestDataWithSenceid:model.senceid completion:^(NSDictionary *imageDict) {
+                NSLog(@"dictionary:%ld-%@",imageDict.count,imageDict);
+                [self.totalDataArray addObject:imageDict];
+            }];
+        }
     });
 }
 - (void)createUI
@@ -162,7 +149,7 @@
     _tabBar.delegate = self;
     [self.view addSubview:_tabBar];
 }
-- (void)requestDataWithSenceid:(NSString *)senceid completion:(void (^)(NSArray *arr))completion
+- (void)requestDataWithSenceid:(NSString *)senceid completion:(void (^)(NSDictionary *imageDict))completion
 {
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     manager.responseSerializer.acceptableContentTypes = [NSSet setWithObject:@"text/html"];
@@ -170,21 +157,10 @@
     NSString *url = [NSString stringWithFormat:KUnitDetailString,senceid];
     [manager GET:url parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSArray *rootArray = responseObject;
-        NSArray *array = [self parseDataFromArray:rootArray withSenceid:senceid];
-        
-        completion(array);
-//        if (self.imgArray.count!=0)
-//        {
-//            completion(self.imgArray,nil);
-////            NSLog(@"self.imgArray.count:%ld",self.imgArray.count);
-//            
-//        }
-//        //字典里面有值
-//        if (self.imgDict.count!=0) {
-//            completion(nil,self.imgDict);
-////            NSLog(@"self.imgDict.count:%ld",self.imgDict.count);
-////            [self.totalDataArray addObject:self.imgDict];
-//        }
+        [rootArray writeToFile:@"/Users/tangzhaoning/Desktop/2.plist" atomically:YES];
+        NSDictionary *imgDict = [self parseDataFromArray:rootArray withSenceid:senceid];
+        //回调传值，将每单元的图片字典回传
+        completion(imgDict);
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (error) {
             NSLog(@"error:%@",error.localizedDescription);
@@ -194,19 +170,18 @@
 /**
  *  解析数据，分割出需要的字符串
 */
-- (NSArray *)parseDataFromArray:(NSArray *)rootArray withSenceid:(NSString *)senceid
+- (NSDictionary *)parseDataFromArray:(NSArray *)rootArray withSenceid:(NSString *)senceid
 {
     NSMutableArray *imageArray = [NSMutableArray array];
     NSMutableArray *mp3Array = [NSMutableArray array];
-//    NSMutableDictionary *imageDict = [NSMutableDictionary dictionary];
+    NSMutableDictionary *imageDict = [NSMutableDictionary dictionary];
 //    NSMutableDictionary *mp3Dictionary = [NSMutableDictionary dictionary];
-    
     for (NSDictionary *rootDict in rootArray) {
         NSArray *content = rootDict[@"content"];
+        int flag = 0;//是否添加图片标志
         for (int i = 0; i<content.count; i++) {
             NSDictionary *contentDict = content[i];
             NSString *urlString = contentDict[@"content"];
-            
             if ([urlString containsString:@".jpg"]) {
                 NSString *imgUrl = urlString;
                 NSRange range = [imgUrl rangeOfString:@"src"];
@@ -215,7 +190,11 @@
                     NSString *srcString = [imgUrl substringFromIndex:index];
                     NSString *imgString = [srcString substringToIndex:srcString.length-2];
                     NSString *img = [NSString stringWithFormat:@"%@%@",HttpUrl,imgString];
-                    [imageArray addObject:img];
+                    //添加图片之前判断是否继续添加
+                    if (flag<1) {
+                        [imageArray addObject:img];
+                        flag++;
+                    }
                 }
             } else if([urlString containsString:@".mp3"]){
                 NSString *mp3Url = urlString;
@@ -232,23 +211,10 @@
             }
         }
     }
-    NSArray *imgArray = [[NSArray alloc]init];
-    imgArray = imageArray;
     self.mp3Array = mp3Array;
-    return imgArray;
-//    [imageDict setObject:_imgArray forKey:senceid];
-//    return imageDict;
-//    [imageArray removeAllObjects];
-    
-//    [mp3Dictionary setObject:mp3Array forKey:senceid];
-//    [imageDict setObject:self.imgArray forKey:senceid];
-//    [mp3Dictionary setObject:self.mp3Array forKey:senceid];
-//    
-//    self.imgDict = imageDict;
-//    self.mp3Dict = mp3Dictionary;
-    
-//    NSLog(@"%ld-%@",self.imgArray.count,self.imgDict);
-//    NSLog(@"%ld-%@",self.mp3Array.count,self.mp3Dict);
+    //每单元的senceid->imageArray组成一个字典
+    [imageDict setObject:imageArray forKey:senceid];
+    return imageDict;
 }
 #pragma mark - UnitTabBarDelegate代理方法
 - (void)tabBarItemClickToShowMenu:(UnitTabBar *)tabBar
