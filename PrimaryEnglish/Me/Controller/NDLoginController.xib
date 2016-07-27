@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="10117" systemVersion="15F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="10117" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
@@ -20,7 +20,7 @@
             <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="phone_30X30.png" highlightedImage="phone_selected_30X30.png" translatesAutoresizingMaskIntoConstraints="NO" id="78n-1L-oG9">
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="phone.png" highlightedImage="phone_selected.png" translatesAutoresizingMaskIntoConstraints="NO" id="78n-1L-oG9">
                     <rect key="frame" x="37" y="80" width="30" height="30"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="30" id="75b-iI-Rum"/>
@@ -28,7 +28,7 @@
                         <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="30" id="Vas-lZ-CKL"/>
                     </constraints>
                 </imageView>
-                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="code_30X30.png" highlightedImage="code_selected_30X30.png" translatesAutoresizingMaskIntoConstraints="NO" id="irB-ci-hoW">
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="code.png" highlightedImage="code_selected.png" translatesAutoresizingMaskIntoConstraints="NO" id="irB-ci-hoW">
                     <rect key="frame" x="37" y="147" width="30" height="30"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="30" id="EOn-e8-O8h"/>
@@ -117,7 +117,7 @@
                         <constraint firstAttribute="height" constant="30" id="Rd1-yg-6c8"/>
                         <constraint firstAttribute="width" constant="30" id="bOe-X7-a1z"/>
                     </constraints>
-                    <state key="normal" title="Button" image="cancal.png"/>
+                    <state key="normal" title="Button" image="cancel.png"/>
                     <connections>
                         <action selector="cancelBtnClick:" destination="-1" eventType="touchUpInside" id="HPM-Ze-ysd"/>
                     </connections>
@@ -168,10 +168,10 @@
         </view>
     </objects>
     <resources>
-        <image name="cancal.png" width="32" height="32"/>
-        <image name="code_30X30.png" width="30" height="30"/>
-        <image name="code_selected_30X30.png" width="30" height="30"/>
-        <image name="phone_30X30.png" width="30" height="30"/>
-        <image name="phone_selected_30X30.png" width="30" height="30"/>
+        <image name="cancel.png" width="32" height="32"/>
+        <image name="code.png" width="30" height="30"/>
+        <image name="code_selected.png" width="30" height="30"/>
+        <image name="phone.png" width="30" height="30"/>
+        <image name="phone_selected.png" width="30" height="30"/>
     </resources>
 </document>

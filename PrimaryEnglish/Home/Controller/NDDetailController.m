@@ -21,6 +21,7 @@
 @property (nonatomic,strong) UITableView *tableView;
 @property (nonatomic,strong) NDInfoModel *model;
 @property (nonatomic,strong) NSMutableArray *cellDataArray;
+//@property (nonatomic,strong) NSMutableArray *unitsArray;
 @end
 
 @implementation NDDetailController
@@ -28,13 +29,11 @@
 {
     [super viewWillAppear:animated];
     [self.rdv_tabBarController setTabBarHidden:YES animated:YES];
-//    self.automaticallyAdjustsScrollViewInsets = NO;
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self requestData];
     [self createUI];
-    
 }
 - (NSMutableArray *)cellDataArray
 {
@@ -43,16 +42,22 @@
     }
     return _cellDataArray;
 }
+//- (NSMutableArray *)unitsArray
+//{
+//    if (!_unitsArray) {
+//        _unitsArray = [NSMutableArray array];
+//    }
+//    return _unitsArray;
+//}
 - (void)createUI
 {
 //    self.navigationController.navigationBar.translucent = YES;//?
-    
     self.view.backgroundColor = [UIColor whiteColor];
     [self.navigationController.navigationBar setBackgroundImage:[UIImage createImageWithColor:Color(234, 103, 37)] forBarMetrics:UIBarMetricsDefault];
     [self.navigationController.navigationBar setShadowImage:[UIImage createImageWithColor:[UIColor clearColor]]];
     
-    
     _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, KScreenWidth, KScreenHeight) style:UITableViewStyleGrouped];
+    _tableView.contentInset = UIEdgeInsetsMake(0, 0, 30, 0);
     _tableView.dataSource = self;
     _tableView.delegate = self;
     [self.view addSubview:_tableView];
@@ -70,12 +75,14 @@
         NSDictionary *infoDict = responseObject[@"pkgInfo"];
         NDInfoModel *model = [[NDInfoModel alloc]init];
         [model setValuesForKeysWithDictionary:infoDict];
-//        NSLog(@"model:%@",model);
         self.model = model;
         self.navigationItem.title = model.title;
         
         NSArray *array = responseObject[@"senceList"];
         self.cellDataArray = [NDDetailModel arrayOfModelsFromDictionaries:array];
+//        for (NDDetailModel *model in self.cellDataArray) {
+//            [self.unitsArray addObject:model.title];
+//        }
         //刷新cell
         [self.tableView reloadData];
         
@@ -101,8 +108,12 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     UnitDetailController *unitVc = [[UnitDetailController alloc]init];
-    
+    //导航栏返回按钮文字
     self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc]initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:nil];
+    unitVc.selectIndex = indexPath.row;
+//    NSLog(@"NDDetailController:%ld-unitVc.selectIndex:%ld",indexPath.row,unitVc.selectIndex);
+    //!单元名称数组
+    unitVc.unitsArray = self.cellDataArray;
     //传递参数
     unitVc.senceid = [self.cellDataArray[indexPath.row] senceid];
     //设置导航栏标题
@@ -122,6 +133,6 @@
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return 100;
+    return 120;
 }
 @end

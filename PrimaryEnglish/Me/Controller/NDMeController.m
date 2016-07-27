@@ -51,8 +51,8 @@
     NSArray *textArray1 = @[@"",@"已下载课程",@"已购课程"];
     NSArray *textArray2 = @[@"设置"];
     self.nameArray = @[textArray1,textArray2];
-    NSArray *imgArray1 = @[@"",@"download_30X30",@"purchased_30X30"];
-    NSArray *imgArray2 = @[@"setting_30X30"];
+    NSArray *imgArray1 = @[@"",@"download",@"purchased"];
+    NSArray *imgArray2 = @[@"setting"];
     self.iconArray = @[imgArray1,imgArray2];
     
 }
