@@ -14,8 +14,9 @@
 #import "UnitTabBar.h"
 #import "SelectCourseHeader.h"
 #import "NDDetailModel.h"
+#import <AVFoundation/AVFoundation.h>//播放音乐
 
-@interface UnitDetailController ()<UnitTabBarDelegate,UITableViewDelegate,UITableViewDataSource,SelectCourseHeaderDelegate>
+@interface UnitDetailController ()<UnitTabBarDelegate,UITableViewDelegate,UITableViewDataSource,SelectCourseHeaderDelegate,UIScrollViewDelegate>
 
 @property (nonatomic,strong) NSArray *mp3Array;
 @property (nonatomic,strong) NSDictionary *mp3Dict;
@@ -27,6 +28,11 @@
 @property (nonatomic,assign) NSIndexPath *selectedIndexPath;
 @property (nonatomic,strong) UnitTabBar *tabBar;
 
+@property (nonatomic,strong) AVQueuePlayer *mp3Player;
+@property (nonatomic,assign) int currentPage;
+
+@property (nonatomic,copy) void(^allDataBlock)(NSMutableArray *allDataArray);
+
 @end
 
 @implementation UnitDetailController
@@ -35,8 +41,18 @@
 {
     [super viewDidLoad];
     [self createUI];
-    [self refreshUI];
-//    [self requestTotalDataArray];
+    
+    [self refreshUI:^{
+        //更新UI之后，也就得到了数据，然后再执行以下代码
+        self.currentPage = 1;
+        [self playMp3AtBegin];
+    }];
+//    __weak typeof(self) weakSelf = self;
+//    self.allDataBlock = ^(NSMutableArray *allDataArray){
+//        NSLog(@"%ld",allDataArray.count);
+//        NSString *path = [NSString stringWithFormat:@"/Users/tangzhaoning/Desktop/%@.plist",weakSelf.senceid];
+//        [allDataArray writeToFile:path atomically:YES];
+//    };
 }
 - (NSIndexPath *)selectedIndexPath
 {
@@ -66,54 +82,33 @@
     }
     return _totalDataArray;
 }
-- (void)requestTotalDataArray
+- (void)requestAllDataUntilCompletion:(void (^)(NSMutableArray *dataArray))completion
 {
     for (NDDetailModel *model in self.unitsArray) {
-        [self requestDataWithSenceid:model.senceid completion:^(NSDictionary *imageDict) {
-            NSLog(@"dictionary:%ld-%@",imageDict.count,imageDict);
+//        NSMutableArray *dataArr = [NSMutableArray array];
+        [self requestDataWithSenceid:model.senceid completion:^(NSDictionary *imageDict,NSDictionary *mp3Dict) {
+//            NSLog(@"dictionary:%ld-%@",imageDict.count,imageDict);
             [self.totalDataArray addObject:imageDict];
+            //返回传值
+            completion(self.totalDataArray);
         }];
     }
 }
-- (void)refreshUI
+- (void)refreshUI:(void(^)())handlerBlock
 {
-//    //创建任务组变量
-//    dispatch_group_t group=dispatch_group_create();
-//    //获取全局的并行队列
-    dispatch_queue_t queue=dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-//    //在任务组中添加任务
-//    dispatch_group_async(group, queue, ^{
-//        
-//        [self requestDataWithSenceid:self.senceid completion:^(NSDictionary *imageDict) {
-//            NSArray *imgArray = imageDict[self.senceid];
-//            NSLog(@"arrcount:%ld-%@",imgArray.count,imgArray);
-//            //主线程上更新UI
-//            dispatch_async(dispatch_get_main_queue(), ^{
-//                for (int i = 0 ; i<imgArray.count; i++) {
-//                    UIImageView *imageView = [[UIImageView alloc]initWithFrame:CGRectMake(i*KScreenWidth, 0, KScreenWidth, KScreenHeight-64-49)];
-//                    //!!!   URL != String
-//                    NSURL *url = [NSURL URLWithString:imgArray[i]];
-//                    [imageView setImageWithURL:url];
-//                    //设置垂直方向不能滚动
-//                    self.scrollView.contentSize = CGSizeMake(imgArray.count*KScreenWidth, 0);
-//                    [self.scrollView addSubview:imageView];
-//                }
-//            });
-//        }];
-//    });
-//    //当group中的所有任务执行完毕后，在队列中执行block
-//    dispatch_group_notify(group, dispatch_get_main_queue(), ^{
-//        [self requestTotalDataArray];
-//    });
-    
     //获取一个自定义的串行队列（顺序执行）
 //    dispatch_queue_t queue = dispatch_queue_create("queue", NULL);
     
-    //将任务放在队列中，同步执行，(不会创建子线程)
+    //获取全局的并行队列
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    //将任务放在队列中，异步执行，(创建子线程)
     dispatch_async(queue, ^{
-        [self requestDataWithSenceid:self.senceid completion:^(NSDictionary *imageDict) {
+        [self requestDataWithSenceid:self.senceid completion:^(NSDictionary *imageDict,NSDictionary *mp3Dict) {
+            //得到mp3字典
+            self.mp3Dict = mp3Dict;
+            //得到字典之后，开始执行block中的代码
+            handlerBlock();
             NSArray *imgArray = imageDict[self.senceid];
-            NSLog(@"arrcount:%ld-%@",imgArray.count,imgArray);
             //主线程上更新UI
             dispatch_async(dispatch_get_main_queue(), ^{
                 for (int i = 0 ; i<imgArray.count; i++) {
@@ -129,12 +124,28 @@
         }];
     });
     dispatch_async(queue, ^{
-        for (NDDetailModel *model in self.unitsArray) {
-            [self requestDataWithSenceid:model.senceid completion:^(NSDictionary *imageDict) {
-                NSLog(@"dictionary:%ld-%@",imageDict.count,imageDict);
-                [self.totalDataArray addObject:imageDict];
-            }];
-        }
+        [self requestAllDataUntilCompletion:^(NSMutableArray *dataArray) {
+//            NSLog(@"dataArray:%ld-%@",dataArray.count,dataArray);
+            if (dataArray.count==self.unitsArray.count) {
+                //将代表所有单元的数组用block方式返回
+                if (self.allDataBlock) {
+                    self.allDataBlock(dataArray);
+                }
+                //主线程上更新UI
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    int sum = 0;
+                    for (NDDetailModel *model in self.unitsArray) {
+                        NSString *senceid = model.senceid;
+                        
+                        for (NSDictionary *dict in dataArray) {
+                            NSArray *array = dict[senceid];
+                            sum += array.count;
+                        }
+                    }
+                    self.tabBar.currentPageLabel.text = [NSString stringWithFormat:@"1/%d",sum];
+                });
+            }
+        }];
     });
 }
 - (void)createUI
@@ -149,7 +160,7 @@
     _tabBar.delegate = self;
     [self.view addSubview:_tabBar];
 }
-- (void)requestDataWithSenceid:(NSString *)senceid completion:(void (^)(NSDictionary *imageDict))completion
+- (void)requestDataWithSenceid:(NSString *)senceid completion:(void (^)(NSDictionary *imageDict,NSDictionary *mp3Dict))completion
 {
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     manager.responseSerializer.acceptableContentTypes = [NSSet setWithObject:@"text/html"];
@@ -158,9 +169,10 @@
     [manager GET:url parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSArray *rootArray = responseObject;
         [rootArray writeToFile:@"/Users/tangzhaoning/Desktop/2.plist" atomically:YES];
-        NSDictionary *imgDict = [self parseDataFromArray:rootArray withSenceid:senceid];
-        //回调传值，将每单元的图片字典回传
-        completion(imgDict);
+        [self parseDataFromArray:rootArray withSenceid:senceid completion:^(NSDictionary *imgDict, NSDictionary *mp3Dict) {
+            //回调传值，将每单元的图片字典回传
+            completion(imgDict,mp3Dict);
+        }];
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (error) {
             NSLog(@"error:%@",error.localizedDescription);
@@ -170,17 +182,26 @@
 /**
  *  解析数据，分割出需要的字符串
 */
-- (NSDictionary *)parseDataFromArray:(NSArray *)rootArray withSenceid:(NSString *)senceid
+- (void)parseDataFromArray:(NSArray *)rootArray withSenceid:(NSString *)senceid completion:(void (^)(NSDictionary *imgDict,NSDictionary *mp3Dict))completion
 {
     NSMutableArray *imageArray = [NSMutableArray array];
-    NSMutableArray *mp3Array = [NSMutableArray array];
     NSMutableDictionary *imageDict = [NSMutableDictionary dictionary];
-//    NSMutableDictionary *mp3Dictionary = [NSMutableDictionary dictionary];
-    for (NSDictionary *rootDict in rootArray) {
+    NSMutableArray *mp3Array = [NSMutableArray array];
+    NSMutableDictionary *mp3Dict = [NSMutableDictionary dictionary];
+    
+    int mp3Index = 0;//mp3所对应的图片下标
+    //遍历该单元所有图片
+    for (int i = 0; i<rootArray.count; i++) {
+        NSDictionary *rootDict = rootArray[i];
         NSArray *content = rootDict[@"content"];
+        
         int flag = 0;//是否添加图片标志
-        for (int i = 0; i<content.count; i++) {
-            NSDictionary *contentDict = content[i];
+        NSMutableDictionary *mp3Dictionary = [NSMutableDictionary dictionary];
+        NSMutableArray *mp3Arr = [NSMutableArray array];
+        
+        //遍历一张图片上的所有声音
+        for (int j = 0; j<content.count; j++) {
+            NSDictionary *contentDict = content[j];
             NSString *urlString = contentDict[@"content"];
             if ([urlString containsString:@".jpg"]) {
                 NSString *imgUrl = urlString;
@@ -206,15 +227,22 @@
                     NSInteger length = toIndex - fromIndex;
                     NSString *mp3String = [urlString substringWithRange:NSMakeRange(fromIndex, length)];
                     NSString *mp3 = [NSString stringWithFormat:@"%@/%@",HttpUrl,mp3String];
-                    [mp3Array addObject:mp3];
+                    [mp3Arr addObject:mp3];
                 }
             }
+//            NSLog(@"mp3Array:%ld-%@",mp3Array.count,mp3Array);
         }
+        mp3Index++;
+        [mp3Dictionary setObject:mp3Arr forKey:@(mp3Index)];
+//        NSLog(@"mp3Dictionary:%@",mp3Dictionary);
+        [mp3Array addObject:mp3Dictionary];
+//        NSLog(@"mp3Array:%@",mp3Array);
     }
-    self.mp3Array = mp3Array;
     //每单元的senceid->imageArray组成一个字典
     [imageDict setObject:imageArray forKey:senceid];
-    return imageDict;
+    [mp3Dict setObject:mp3Array forKey:senceid];
+    //返回传值
+    completion(imageDict,mp3Dict);
 }
 #pragma mark - UnitTabBarDelegate代理方法
 - (void)tabBarItemClickToShowMenu:(UnitTabBar *)tabBar
@@ -285,5 +313,68 @@
     self.selectedIndexPath = indexPath;
     UITableViewCell *SelectCell = [tableView cellForRowAtIndexPath:indexPath];
     [SelectCell.textLabel setTextColor:[UIColor redColor]];
+}
+#pragma mark - UIScrollViewDelegate代理方法
+- (void)playMp3AtBegin
+{
+    //监听播放状态，播放完成后，自动调用playbackFinished方法播放下一首
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playbackFinished) name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
+    //一开始播放第一张图片所对应的mp3
+    //获得第一张图片所对应的mp3数组
+    [self getMp3ArrayWithIndex:1];
+//    NSLog(@"self.mp3Dict:%@",self.mp3Dict);
+    [self initMp3Player];
+}
+/**
+ *  滚动结束时调用
+ */
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+    //  当前滚动到第几张图片
+    int index = scrollView.contentOffset.x/KScreenWidth + 1;
+    //滚动之后如果还在当前页，则不播放音乐
+    if (self.currentPage==index) {
+        return;
+    }else
+    {
+        self.currentPage = index;
+    }
+    //先得到mp3的URL数组
+    [self getMp3ArrayWithIndex:index];
+    [self initMp3Player];
+}
+- (void)getMp3ArrayWithIndex:(int)index
+{
+    NSArray *mp3arr = self.mp3Dict[self.senceid];
+    for (NSDictionary *dict in mp3arr) {
+        if ([dict.allKeys containsObject:@(index)]) {
+            NSArray *mp3Data = dict[@(index)];
+            self.mp3Array = mp3Data;
+            break;
+        }
+    }
+    NSLog(@"当前是第%d张图片！",index);
+}
+- (void)initMp3Player
+{
+    NSMutableArray *itemArray = [NSMutableArray array];
+    for (NSString *str in self.mp3Array) {
+        NSURL *url = [NSURL URLWithString:str];
+        AVPlayerItem *item = [AVPlayerItem playerItemWithURL:url];
+        [itemArray addObject:item];
+    }
+    _mp3Player = [AVQueuePlayer queuePlayerWithItems:itemArray];
+    [_mp3Player play];
+//    NSLog(@"player:%@",_mp3Player.currentItem);
+}
+- (void)playbackFinished
+{
+    //播放下一首mp3
+    [self.mp3Player advanceToNextItem];
+}
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    NSLog(@"dealloc: removeObserver--self");
 }
 @end
