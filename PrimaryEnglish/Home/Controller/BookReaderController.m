@@ -6,9 +6,9 @@
 //  Copyright © 2016年 Nic. All rights reserved.
 //
 #define HttpUrl @"http://app.ekaola.com"
-#define DataSavePath [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)lastObject]stringByAppendingPathComponent:@"total.plist"]
+#define DataSavePath @"/Users/tangzhaoning/请求数据/%@.plist"
 
-#import "UnitDetailController.h"
+#import "BookReaderController.h"
 #import "AFHTTPSessionManager.h"
 #import "UIImageView+AFNetworking.h"
 #import "UnitTabBar.h"
@@ -16,7 +16,7 @@
 #import "NDDetailModel.h"
 #import <AVFoundation/AVFoundation.h>//播放音乐
 
-@interface UnitDetailController ()<UnitTabBarDelegate,UITableViewDelegate,UITableViewDataSource,SelectCourseHeaderDelegate,UIScrollViewDelegate>
+@interface BookReaderController ()<UnitTabBarDelegate,UITableViewDelegate,UITableViewDataSource,SelectCourseHeaderDelegate,UIScrollViewDelegate>
 
 @property (nonatomic,strong) NSArray *mp3Array;
 @property (nonatomic,strong) NSDictionary *mp3Dict;
@@ -35,13 +35,14 @@
 
 @end
 
-@implementation UnitDetailController
+@implementation BookReaderController
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     [self createUI];
-    
+//    NSString *path = [NSString stringWithFormat:DataSavePath,self.senceid];
+//    NSLog(@"%@",path);
     [self refreshUI:^{
         //更新UI之后，也就得到了数据，然后再执行以下代码
         self.currentPage = 1;
@@ -106,8 +107,6 @@
         [self requestDataWithSenceid:self.senceid completion:^(NSDictionary *imageDict,NSDictionary *mp3Dict) {
             //得到mp3字典
             self.mp3Dict = mp3Dict;
-            //得到字典之后，开始执行block中的代码
-            handlerBlock();
             NSArray *imgArray = imageDict[self.senceid];
             //主线程上更新UI
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -121,32 +120,34 @@
                     [self.scrollView addSubview:imageView];
                 }
             });
+            //得到字典,更新显示图片之后，开始执行block中的代码，即播放音频
+            handlerBlock();
         }];
     });
-    dispatch_async(queue, ^{
-        [self requestAllDataUntilCompletion:^(NSMutableArray *dataArray) {
-//            NSLog(@"dataArray:%ld-%@",dataArray.count,dataArray);
-            if (dataArray.count==self.unitsArray.count) {
-                //将代表所有单元的数组用block方式返回
-                if (self.allDataBlock) {
-                    self.allDataBlock(dataArray);
-                }
-                //主线程上更新UI
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    int sum = 0;
-                    for (NDDetailModel *model in self.unitsArray) {
-                        NSString *senceid = model.senceid;
-                        
-                        for (NSDictionary *dict in dataArray) {
-                            NSArray *array = dict[senceid];
-                            sum += array.count;
-                        }
-                    }
-                    self.tabBar.currentPageLabel.text = [NSString stringWithFormat:@"1/%d",sum];
-                });
-            }
-        }];
-    });
+//    dispatch_async(queue, ^{
+//        [self requestAllDataUntilCompletion:^(NSMutableArray *dataArray) {
+////            NSLog(@"dataArray:%ld-%@",dataArray.count,dataArray);
+//            if (dataArray.count==self.unitsArray.count) {
+//                //将代表所有单元的数组用block方式返回
+//                if (self.allDataBlock) {
+//                    self.allDataBlock(dataArray);
+//                }
+//                //主线程上更新UI
+//                dispatch_async(dispatch_get_main_queue(), ^{
+//                    int sum = 0;
+//                    for (NDDetailModel *model in self.unitsArray) {
+//                        NSString *senceid = model.senceid;
+//                        
+//                        for (NSDictionary *dict in dataArray) {
+//                            NSArray *array = dict[senceid];
+//                            sum += array.count;
+//                        }
+//                    }
+//                    self.tabBar.currentPageLabel.text = [NSString stringWithFormat:@"1/%d",sum];
+//                });
+//            }
+//        }];
+//    });
 }
 - (void)createUI
 {
@@ -168,7 +169,8 @@
     NSString *url = [NSString stringWithFormat:KUnitDetailString,senceid];
     [manager GET:url parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSArray *rootArray = responseObject;
-        [rootArray writeToFile:@"/Users/tangzhaoning/Desktop/2.plist" atomically:YES];
+        //保存请求数据到本地
+        [rootArray writeToFile:[NSString stringWithFormat:DataSavePath,senceid] atomically:YES];
         [self parseDataFromArray:rootArray withSenceid:senceid completion:^(NSDictionary *imgDict, NSDictionary *mp3Dict) {
             //回调传值，将每单元的图片字典回传
             completion(imgDict,mp3Dict);
@@ -375,6 +377,6 @@
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    NSLog(@"dealloc: removeObserver--self");
+//    NSLog(@"dealloc: removeObserver--self");
 }
 @end

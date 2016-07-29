@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		F00216061D40A2D8006AB840 /* UnitDetailController.m in Sources */ = {isa = PBXBuildFile; fileRef = F00216051D40A2D8006AB840 /* UnitDetailController.m */; };
+		F00216061D40A2D8006AB840 /* BookReaderController.m in Sources */ = {isa = PBXBuildFile; fileRef = F00216051D40A2D8006AB840 /* BookReaderController.m */; };
 		F00216B61D420F4B006AB840 /* UnitTabBar.xib in Resources */ = {isa = PBXBuildFile; fileRef = F00216B51D420F4B006AB840 /* UnitTabBar.xib */; };
 		F00216BA1D4217B0006AB840 /* Share.png in Resources */ = {isa = PBXBuildFile; fileRef = F00216B81D4217B0006AB840 /* Share.png */; };
 		F00216BC1D421AF2006AB840 /* menu.png in Resources */ = {isa = PBXBuildFile; fileRef = F00216BB1D421AF2006AB840 /* menu.png */; };
@@ -136,6 +136,11 @@
 		F060A3D21D38D918009A1A06 /* ShareAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = F060A3D11D38D918009A1A06 /* ShareAlertView.m */; };
 		F060A3D41D38D946009A1A06 /* ShareAlertView.xib in Resources */ = {isa = PBXBuildFile; fileRef = F060A3D31D38D946009A1A06 /* ShareAlertView.xib */; };
 		F0B4B4F11D3CA1C100D4E6C8 /* cancel.png in Resources */ = {isa = PBXBuildFile; fileRef = F0B4B4F01D3CA1C100D4E6C8 /* cancel.png */; };
+		F0BEC9331D4A10790039CCC8 /* NDSelectModel.m in Sources */ = {isa = PBXBuildFile; fileRef = F0BEC9321D4A10790039CCC8 /* NDSelectModel.m */; };
+		F0BEC9361D4B31D40039CCC8 /* NDMatchModel.m in Sources */ = {isa = PBXBuildFile; fileRef = F0BEC9351D4B31D40039CCC8 /* NDMatchModel.m */; };
+		F0BEC9391D4B47B10039CCC8 /* NDFillingModel.m in Sources */ = {isa = PBXBuildFile; fileRef = F0BEC9381D4B47B10039CCC8 /* NDFillingModel.m */; };
+		F0D5C30C1D49E9B2009D2B0A /* VocabularyPracticeController.m in Sources */ = {isa = PBXBuildFile; fileRef = F0D5C30B1D49E9B2009D2B0A /* VocabularyPracticeController.m */; };
+		F0D5C30F1D49EA0C009D2B0A /* MatchedPracticeController.m in Sources */ = {isa = PBXBuildFile; fileRef = F0D5C30E1D49EA0C009D2B0A /* MatchedPracticeController.m */; };
 		F0DC027C1D3CCDA5004EC77C /* NDLoginController.m in Sources */ = {isa = PBXBuildFile; fileRef = F0DC027A1D3CCDA5004EC77C /* NDLoginController.m */; };
 		F0DC027D1D3CCDA5004EC77C /* NDLoginController.xib in Resources */ = {isa = PBXBuildFile; fileRef = F0DC027B1D3CCDA5004EC77C /* NDLoginController.xib */; };
 /* End PBXBuildFile section */
@@ -158,8 +163,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		F00216041D40A2D8006AB840 /* UnitDetailController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UnitDetailController.h; sourceTree = "<group>"; };
-		F00216051D40A2D8006AB840 /* UnitDetailController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UnitDetailController.m; sourceTree = "<group>"; };
+		F00216041D40A2D8006AB840 /* BookReaderController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BookReaderController.h; sourceTree = "<group>"; };
+		F00216051D40A2D8006AB840 /* BookReaderController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BookReaderController.m; sourceTree = "<group>"; };
 		F00216B51D420F4B006AB840 /* UnitTabBar.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = UnitTabBar.xib; sourceTree = "<group>"; };
 		F00216B81D4217B0006AB840 /* Share.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Share.png; sourceTree = "<group>"; };
 		F00216BB1D421AF2006AB840 /* menu.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = menu.png; sourceTree = "<group>"; };
@@ -375,6 +380,16 @@
 		F060A3D11D38D918009A1A06 /* ShareAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShareAlertView.m; sourceTree = "<group>"; };
 		F060A3D31D38D946009A1A06 /* ShareAlertView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ShareAlertView.xib; sourceTree = "<group>"; };
 		F0B4B4F01D3CA1C100D4E6C8 /* cancel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cancel.png; sourceTree = "<group>"; };
+		F0BEC9311D4A10790039CCC8 /* NDSelectModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NDSelectModel.h; sourceTree = "<group>"; };
+		F0BEC9321D4A10790039CCC8 /* NDSelectModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NDSelectModel.m; sourceTree = "<group>"; };
+		F0BEC9341D4B31D40039CCC8 /* NDMatchModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NDMatchModel.h; sourceTree = "<group>"; };
+		F0BEC9351D4B31D40039CCC8 /* NDMatchModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NDMatchModel.m; sourceTree = "<group>"; };
+		F0BEC9371D4B47B10039CCC8 /* NDFillingModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NDFillingModel.h; sourceTree = "<group>"; };
+		F0BEC9381D4B47B10039CCC8 /* NDFillingModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NDFillingModel.m; sourceTree = "<group>"; };
+		F0D5C30A1D49E9B2009D2B0A /* VocabularyPracticeController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VocabularyPracticeController.h; sourceTree = "<group>"; };
+		F0D5C30B1D49E9B2009D2B0A /* VocabularyPracticeController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VocabularyPracticeController.m; sourceTree = "<group>"; };
+		F0D5C30D1D49EA0C009D2B0A /* MatchedPracticeController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MatchedPracticeController.h; sourceTree = "<group>"; };
+		F0D5C30E1D49EA0C009D2B0A /* MatchedPracticeController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MatchedPracticeController.m; sourceTree = "<group>"; };
 		F0DC02791D3CCDA5004EC77C /* NDLoginController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NDLoginController.h; sourceTree = "<group>"; };
 		F0DC027A1D3CCDA5004EC77C /* NDLoginController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NDLoginController.m; sourceTree = "<group>"; };
 		F0DC027B1D3CCDA5004EC77C /* NDLoginController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NDLoginController.xib; sourceTree = "<group>"; };
@@ -793,8 +808,12 @@
 				F04BCB321D3341A400CCEDC6 /* NDHomeController.m */,
 				F00F8DC71D338B6A00896FC9 /* NDDetailController.h */,
 				F00F8DC81D338B6A00896FC9 /* NDDetailController.m */,
-				F00216041D40A2D8006AB840 /* UnitDetailController.h */,
-				F00216051D40A2D8006AB840 /* UnitDetailController.m */,
+				F00216041D40A2D8006AB840 /* BookReaderController.h */,
+				F00216051D40A2D8006AB840 /* BookReaderController.m */,
+				F0D5C30A1D49E9B2009D2B0A /* VocabularyPracticeController.h */,
+				F0D5C30B1D49E9B2009D2B0A /* VocabularyPracticeController.m */,
+				F0D5C30D1D49EA0C009D2B0A /* MatchedPracticeController.h */,
+				F0D5C30E1D49EA0C009D2B0A /* MatchedPracticeController.m */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -808,6 +827,12 @@
 				F00F8DCE1D3398B100896FC9 /* NDDetailModel.m */,
 				F00F8DCA1D3395FA00896FC9 /* NDInfoModel.h */,
 				F00F8DCB1D3395FA00896FC9 /* NDInfoModel.m */,
+				F0BEC9311D4A10790039CCC8 /* NDSelectModel.h */,
+				F0BEC9321D4A10790039CCC8 /* NDSelectModel.m */,
+				F0BEC9341D4B31D40039CCC8 /* NDMatchModel.h */,
+				F0BEC9371D4B47B10039CCC8 /* NDFillingModel.h */,
+				F0BEC9381D4B47B10039CCC8 /* NDFillingModel.m */,
+				F0BEC9351D4B31D40039CCC8 /* NDMatchModel.m */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -1166,6 +1191,7 @@
 				F0DC027C1D3CCDA5004EC77C /* NDLoginController.m in Sources */,
 				F04BCB081D33344000CCEDC6 /* UIButton+AFNetworking.m in Sources */,
 				F00F8E5D24BC682D00896FC9 /* NDSingleUnitController.m in Sources */,
+				F0BEC9331D4A10790039CCC8 /* NDSelectModel.m in Sources */,
 				F060A3411D3781C6009A1A06 /* MeNameCell.m in Sources */,
 				F04BCAD81D33343100CCEDC6 /* RDVTabBarController.m in Sources */,
 				F00F8E1924BAD09300896FC9 /* MJRefreshNormalHeader.m in Sources */,
@@ -1200,13 +1226,15 @@
 				F04BCB071D33344000CCEDC6 /* UIActivityIndicatorView+AFNetworking.m in Sources */,
 				F00F8E1F24BAD09300896FC9 /* UIView+MJExtension.m in Sources */,
 				F00F8E1824BAD09300896FC9 /* MJRefreshGifHeader.m in Sources */,
+				F0D5C30F1D49EA0C009D2B0A /* MatchedPracticeController.m in Sources */,
 				F00F8DD31D339D1400896FC9 /* NDDetailCell.m in Sources */,
 				F060A34A1D3785C3009A1A06 /* NDMeInfoController.m in Sources */,
 				F04BCAC61D33340900CCEDC6 /* JSONModel.m in Sources */,
 				F00F8E1E24BAD09300896FC9 /* UIScrollView+MJRefresh.m in Sources */,
 				F04BCAFF1D33344000CCEDC6 /* AFNetworkReachabilityManager.m in Sources */,
 				F04BCACE1D33340900CCEDC6 /* JSONKeyMapper.m in Sources */,
-				F00216061D40A2D8006AB840 /* UnitDetailController.m in Sources */,
+				F0D5C30C1D49E9B2009D2B0A /* VocabularyPracticeController.m in Sources */,
+				F00216061D40A2D8006AB840 /* BookReaderController.m in Sources */,
 				F00F8DD71D33A50A00896FC9 /* DetailHeaderView.m in Sources */,
 				F04BCACD1D33340900CCEDC6 /* JSONModel+networking.m in Sources */,
 				F00F8E1424BAD09300896FC9 /* MJRefreshAutoStateFooter.m in Sources */,
@@ -1219,6 +1247,7 @@
 				F00F8E1C24BAD09300896FC9 /* MJRefreshConst.m in Sources */,
 				F04BCAFE1D33344000CCEDC6 /* AFHTTPSessionManager.m in Sources */,
 				F00F8DDA1D3479B200896FC9 /* NDCourseModel.m in Sources */,
+				F0BEC9391D4B47B10039CCC8 /* NDFillingModel.m in Sources */,
 				F00216BF1D421EA0006AB840 /* UnitTabBar.m in Sources */,
 				F04BCB021D33344000CCEDC6 /* AFURLResponseSerialization.m in Sources */,
 				F00F8DCC1D3395FA00896FC9 /* NDInfoModel.m in Sources */,
@@ -1227,6 +1256,7 @@
 				F04BCB0C1D33344000CCEDC6 /* UIWebView+AFNetworking.m in Sources */,
 				F04BCB051D33344000CCEDC6 /* AFImageDownloader.m in Sources */,
 				F00F8E1324BAD09300896FC9 /* MJRefreshAutoNormalFooter.m in Sources */,
+				F0BEC9361D4B31D40039CCC8 /* NDMatchModel.m in Sources */,
 				F04BCB061D33344000CCEDC6 /* AFNetworkActivityIndicatorManager.m in Sources */,
 				F00F8E1124BAD09300896FC9 /* MJRefreshHeader.m in Sources */,
 				F00F8E1A24BAD09300896FC9 /* MJRefreshStateHeader.m in Sources */,

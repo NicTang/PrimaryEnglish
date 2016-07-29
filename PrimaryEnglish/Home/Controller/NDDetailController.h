@@ -11,5 +11,9 @@
 @interface NDDetailController : UIViewController
 
 @property (nonatomic,copy) NSString *courseID;
+/**
+ *  当前书的类别标记（点读，词汇，配套）
+ */
+@property (nonatomic,assign) NSInteger flag;
 
 @end

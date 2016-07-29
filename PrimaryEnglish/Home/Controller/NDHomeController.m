@@ -108,9 +108,12 @@
 #pragma mark - UICollectionView代理方法UICollectionViewDelegate
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
+//    NSLog(@"indexPath.item对3求余后:%ld",indexPath.item % 3);
+    NSInteger remainder = indexPath.item % 3 ;
     NDHomeModel *model = self.dataArray[indexPath.item];
     NDDetailController *detailVc= [[NDDetailController alloc]init];
     detailVc.courseID = model.homeID;
+    detailVc.flag = remainder;
     [self.navigationController pushViewController:detailVc animated:YES];
 }
 #pragma mark - UICollectionViewDelegateFlowLayout代理方法

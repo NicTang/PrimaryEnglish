@@ -8,8 +8,10 @@
 
 #import <UIKit/UIKit.h>
 
-@interface UnitDetailController : UIViewController
-
+@interface BookReaderController : UIViewController
+/**
+ *  该单元的请求参数
+ */
 @property (nonatomic,copy) NSString *senceid;
 //单元标题
 @property (nonatomic,strong) NSMutableArray *unitsArray;

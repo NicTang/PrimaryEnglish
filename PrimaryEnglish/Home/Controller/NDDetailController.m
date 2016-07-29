@@ -14,7 +14,9 @@
 #import "NDDetailCell.h"
 #import "DetailHeaderView.h"
 #import "UIImage+NewImage.h"
-#import "UnitDetailController.h"
+#import "BookReaderController.h"//课本点读
+#import "VocabularyPracticeController.h"//词汇练习
+#import "MatchedPracticeController.h"//配套练习
 
 @interface NDDetailController ()<UITableViewDelegate,UITableViewDataSource>
 
@@ -107,18 +109,40 @@
 #pragma mark - UITableViewDelegate代理方法
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UnitDetailController *unitVc = [[UnitDetailController alloc]init];
-    //导航栏返回按钮文字
+    NSLog(@"self.flag:%ld",self.flag);
+    //导航栏返回按钮文字为空，在此可以统一设置
     self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc]initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:nil];
-    unitVc.selectIndex = indexPath.row;
-//    NSLog(@"NDDetailController:%ld-unitVc.selectIndex:%ld",indexPath.row,unitVc.selectIndex);
-    //!单元名称数组
-    unitVc.unitsArray = self.cellDataArray;
-    //传递参数
-    unitVc.senceid = [self.cellDataArray[indexPath.row] senceid];
-    //设置导航栏标题
-    unitVc.title = [self.cellDataArray[indexPath.row] title];
-    [self.navigationController pushViewController:unitVc animated:YES];
+    if (self.flag==0) {
+        BookReaderController *unitVc = [[BookReaderController alloc]init];
+        unitVc.selectIndex = indexPath.row;
+        //当前书本的所有信息数组
+        unitVc.unitsArray = self.cellDataArray;
+        //接收请求单元详细数据的参数
+        unitVc.senceid = [self.cellDataArray[indexPath.row] senceid];
+        NSLog(@"unitVc.senceid:%@",unitVc.senceid);
+        //设置导航栏标题
+        unitVc.title = [self.cellDataArray[indexPath.row] title];
+        [self.navigationController pushViewController:unitVc animated:YES];
+    }else if(self.flag==1)
+    {
+        VocabularyPracticeController *vocabularyVc = [[VocabularyPracticeController alloc]init];
+        vocabularyVc.title = [self.cellDataArray[indexPath.row] title];
+        //请求单元详情的参数
+        vocabularyVc.senceid = [self.cellDataArray[indexPath.row] senceid];
+        [self.navigationController pushViewController:vocabularyVc animated:YES];
+    }else{
+//        VocabularyPracticeController *vocabularyVc = [[VocabularyPracticeController alloc]init];
+//        vocabularyVc.title = [self.cellDataArray[indexPath.row] title];
+//        //请求单元详情的参数
+//        vocabularyVc.senceid = [self.cellDataArray[indexPath.row] senceid];
+//        [self.navigationController pushViewController:vocabularyVc animated:YES];
+        MatchedPracticeController *matchVc = [[MatchedPracticeController alloc]init];
+        matchVc.title = [self.cellDataArray[indexPath.row] title];
+        //请求单元详情的参数
+        matchVc.senceid = [self.cellDataArray[indexPath.row] senceid];
+        [self.navigationController pushViewController:matchVc animated:YES];
+    }
+    
 }
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
