@@ -43,11 +43,7 @@
     [self createUI];
 //    NSString *path = [NSString stringWithFormat:DataSavePath,self.senceid];
 //    NSLog(@"%@",path);
-    [self refreshUI:^{
-        //更新UI之后，也就得到了数据，然后再执行以下代码
-        self.currentPage = 1;
-        [self playMp3AtBegin];
-    }];
+    [self refreshUI];
 //    __weak typeof(self) weakSelf = self;
 //    self.allDataBlock = ^(NSMutableArray *allDataArray){
 //        NSLog(@"%ld",allDataArray.count);
@@ -95,7 +91,31 @@
         }];
     }
 }
-- (void)refreshUI:(void(^)())handlerBlock
+- (void)showImageWithDict:(NSDictionary *)imgDict play:(NSDictionary *)mp3Dict senceid:(NSString *)senceid handler:(void(^)())handlerBlock
+{
+    //得到mp3字典
+    self.mp3Dict = mp3Dict;
+    NSArray *imgArray = imgDict[senceid];
+    //主线程上更新UI
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.scrollView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+        for (int i = 0 ; i<imgArray.count; i++) {
+            UIImageView *imageView = [[UIImageView alloc]initWithFrame:CGRectMake(i*KScreenWidth, 0, KScreenWidth, KScreenHeight-64-49)];
+            //!!!   URL != String
+            NSURL *url = [NSURL URLWithString:imgArray[i]];
+            [imageView setImageWithURL:url];
+            //设置垂直方向不能滚动
+            self.scrollView.contentSize = CGSizeMake(imgArray.count*KScreenWidth, 0);
+            [self.scrollView addSubview:imageView];
+        }
+    });
+    //得到字典,更新显示图片之后，开始执行block中的代码，即播放音频
+    //（延时执行某段代码）
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        handlerBlock();
+    });
+}
+- (void)refreshUI
 {
     //获取一个自定义的串行队列（顺序执行）
 //    dispatch_queue_t queue = dispatch_queue_create("queue", NULL);
@@ -105,23 +125,11 @@
     //将任务放在队列中，异步执行，(创建子线程)
     dispatch_async(queue, ^{
         [self requestDataWithSenceid:self.senceid completion:^(NSDictionary *imageDict,NSDictionary *mp3Dict) {
-            //得到mp3字典
-            self.mp3Dict = mp3Dict;
-            NSArray *imgArray = imageDict[self.senceid];
-            //主线程上更新UI
-            dispatch_async(dispatch_get_main_queue(), ^{
-                for (int i = 0 ; i<imgArray.count; i++) {
-                    UIImageView *imageView = [[UIImageView alloc]initWithFrame:CGRectMake(i*KScreenWidth, 0, KScreenWidth, KScreenHeight-64-49)];
-                    //!!!   URL != String
-                    NSURL *url = [NSURL URLWithString:imgArray[i]];
-                    [imageView setImageWithURL:url];
-                    //设置垂直方向不能滚动
-                    self.scrollView.contentSize = CGSizeMake(imgArray.count*KScreenWidth, 0);
-                    [self.scrollView addSubview:imageView];
-                }
-            });
-            //得到字典,更新显示图片之后，开始执行block中的代码，即播放音频
-            handlerBlock();
+            [self showImageWithDict:imageDict play:mp3Dict senceid:self.senceid handler:^{
+                self.mp3Player = nil;
+                self.currentPage = 1;
+                [self playMp3AtBeginWithSenceid:self.senceid];
+            }];
         }];
     });
 //    dispatch_async(queue, ^{
@@ -315,15 +323,38 @@
     self.selectedIndexPath = indexPath;
     UITableViewCell *SelectCell = [tableView cellForRowAtIndexPath:indexPath];
     [SelectCell.textLabel setTextColor:[UIColor redColor]];
+    
+    NDDetailModel *model = self.unitsArray[indexPath.row];
+    NSString *senceid = model.senceid;
+    self.title = model.title;
+    NSLog(@"self.senceid:%@-senceid:%@",self.senceid,senceid);
+    
+    self.mp3Player = nil;
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    self.senceid = senceid;
+    
+    [self requestDataWithSenceid:senceid completion:^(NSDictionary *imageDict, NSDictionary *mp3Dict) {
+        NSLog(@"imageDict:%@,mp3Dict:%@",imageDict,mp3Dict);
+        [self showImageWithDict:imageDict play:mp3Dict senceid:senceid handler:^{
+            
+            self.currentPage = 1;
+            self.scrollView.contentOffset = CGPointMake(0, 0);
+            [self playMp3AtBeginWithSenceid:senceid];
+        }];
+    }];
+    [self.coverView removeFromSuperview];
+    [self.tableView removeFromSuperview];
+    self.coverView = nil;
+    self.tableView = nil;
 }
 #pragma mark - UIScrollViewDelegate代理方法
-- (void)playMp3AtBegin
+- (void)playMp3AtBeginWithSenceid:(NSString *)senceid
 {
     //监听播放状态，播放完成后，自动调用playbackFinished方法播放下一首
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playbackFinished) name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
     //一开始播放第一张图片所对应的mp3
     //获得第一张图片所对应的mp3数组
-    [self getMp3ArrayWithIndex:1];
+    [self getMp3ArrayWithIndex:1 senceid:senceid];
 //    NSLog(@"self.mp3Dict:%@",self.mp3Dict);
     [self initMp3Player];
 }
@@ -342,12 +373,12 @@
         self.currentPage = index;
     }
     //先得到mp3的URL数组
-    [self getMp3ArrayWithIndex:index];
+    [self getMp3ArrayWithIndex:index senceid:self.senceid];
     [self initMp3Player];
 }
-- (void)getMp3ArrayWithIndex:(int)index
+- (void)getMp3ArrayWithIndex:(int)index senceid:(NSString *)senceid
 {
-    NSArray *mp3arr = self.mp3Dict[self.senceid];
+    NSArray *mp3arr = self.mp3Dict[senceid];
     for (NSDictionary *dict in mp3arr) {
         if ([dict.allKeys containsObject:@(index)]) {
             NSArray *mp3Data = dict[@(index)];
@@ -377,6 +408,7 @@
 }
 - (void)dealloc
 {
+    self.mp3Player = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 //    NSLog(@"dealloc: removeObserver--self");
 }
