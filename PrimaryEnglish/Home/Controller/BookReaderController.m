@@ -356,6 +356,7 @@
         }
     }
     NSLog(@"当前是第%d张图片！",index);
+    NSLog(@"一共 %ld 句话：%@",self.mp3Array.count,self.mp3Array);
 }
 - (void)initMp3Player
 {

@@ -9,13 +9,28 @@
 #import "JSONModel.h"
 
 @interface NDSelectModel : JSONModel
+//共有
+@property (nonatomic,copy) NSString<Optional> *type;
+@property (nonatomic,strong) NSDictionary<Optional> *audio;
+@property (nonatomic,copy) NSString<Optional> *ques;
+@property (nonatomic,copy) NSString<Optional> *expl;
+//卡片独有
+//@property (nonatomic,assign) BOOL<Optional> ispic;
+@property (nonatomic,strong) NSArray<Optional> *choices;
 
-@property (nonatomic,copy) NSString *type;
-@property (nonatomic,strong) NSDictionary *audio;
-@property (nonatomic,assign) BOOL ispic;
+//填空、卡片
+@property (nonatomic,copy) NSString<Optional> *content;
+@property (nonatomic,strong) NSArray<Optional> *keys;
+//图片匹配
+@property (nonatomic,strong) NSArray<Optional> *baseImgArr;
+@property (nonatomic,strong) NSArray<Optional> *matchImgArr;
 
-@property (nonatomic,strong) NSArray *choices;
-@property (nonatomic,copy) NSString *ques;
-@property (nonatomic,strong) NSArray *keys;
-@property (nonatomic,copy) NSString *expl;
+//自定义属性
+//@property (nonatomic,strong) NSMutableArray<Optional> *selectArray;
+@property (nonatomic,strong) NSArray<Optional> *chooseArray;
+@property (nonatomic,strong) NSArray<Optional> *matchingArray;
+@property (nonatomic,strong) NSArray<Optional> *fillingArray;
+
+- (id)parseDataByType:(NSString *)type;
+
 @end

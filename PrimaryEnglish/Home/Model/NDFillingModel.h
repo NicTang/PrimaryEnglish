@@ -8,13 +8,12 @@
 
 #import "JSONModel.h"
 
-@interface NDFillingModel : JSONModel
+@interface NDFillingModel : NSObject
 
-@property (nonatomic,strong) NSDictionary *audio;
+@property (nonatomic,copy) NSString *mp3Url;
 @property (nonatomic,copy) NSString *content;
-@property (nonatomic,copy) NSString *expl;
 @property (nonatomic,strong) NSArray *keys;
-@property (nonatomic,copy) NSString *ques;
+@property (nonatomic,copy) NSString *tipLabelText;
 @property (nonatomic,copy) NSString *type;
 
 @end

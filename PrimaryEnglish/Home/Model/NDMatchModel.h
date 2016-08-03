@@ -8,13 +8,12 @@
 
 #import "JSONModel.h"
 
-@interface NDMatchModel : JSONModel
+@interface NDMatchModel : NSObject
 
 @property (nonatomic,copy) NSString *type;
-@property (nonatomic,strong) NSDictionary *audio;
-@property (nonatomic,copy) NSString *ques;
+@property (nonatomic,copy) NSString *mp3Url;
+@property (nonatomic,copy) NSString *tipLabelText;
 @property (nonatomic,strong) NSArray *baseImgArr;
 @property (nonatomic,strong) NSArray *matchImgArr;
-@property (nonatomic,copy) NSString *expl;
 
 @end
