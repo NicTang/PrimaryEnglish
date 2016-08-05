@@ -10,4 +10,10 @@
 
 @implementation NDMatchModel
 
+- (NSString *)description
+{
+    NSString *str = [NSString stringWithFormat:@"type:%@-mp3Url:%@-tipLabelText:%@-baseImgArr:%@-matchImgArr:%@",self.type,self.mp3Url,self.tipLabelText,self.baseImgArr,self.matchImgArr];
+    return str;
+}
+
 @end

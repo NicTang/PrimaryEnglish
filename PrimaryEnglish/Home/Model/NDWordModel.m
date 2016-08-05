@@ -1,20 +1,18 @@
 //
-//  NDFillingModel.m
+//  NDWordModel.m
 //  PrimaryEnglish
 //
-//  Created by Nic Downey on 16/7/29.
+//  Created by Nic Downey on 16/8/3.
 //  Copyright © 2016年 Nic. All rights reserved.
 //
 
-#import "NDFillingModel.h"
+#import "NDWordModel.h"
 
-@implementation NDFillingModel
-
+@implementation NDWordModel
 
 - (NSString *)description
 {
     NSString *str = [NSString stringWithFormat:@"type:%@-mp3Url:%@-tipLabelText:%@-content:%@-keys:%@",self.type,self.mp3Url,self.tipLabelText,self.content,self.keys];
     return str;
 }
-
 @end

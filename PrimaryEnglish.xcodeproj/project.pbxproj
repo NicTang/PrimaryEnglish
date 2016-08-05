@@ -49,6 +49,11 @@
 		F01E7C5D1D373F60009D7551 /* NDHeaderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = F01E7C5B1D373F60009D7551 /* NDHeaderCell.m */; };
 		F01E7C5E1D373F60009D7551 /* NDHeaderCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = F01E7C5C1D373F60009D7551 /* NDHeaderCell.xib */; };
 		F01FFCCF1D50ADD400DF81FC /* NDChooseModel.m in Sources */ = {isa = PBXBuildFile; fileRef = F01FFCCE1D50ADD400DF81FC /* NDChooseModel.m */; };
+		F01FFCD21D518FD600DF81FC /* NDWordModel.m in Sources */ = {isa = PBXBuildFile; fileRef = F01FFCD11D518FD500DF81FC /* NDWordModel.m */; };
+		F01FFCD71D51E5BE00DF81FC /* playMp3*37.png in Resources */ = {isa = PBXBuildFile; fileRef = F01FFCD51D51E5BE00DF81FC /* playMp3*37.png */; };
+		F01FFCD81D51E5BE00DF81FC /* playMp3*40.png in Resources */ = {isa = PBXBuildFile; fileRef = F01FFCD61D51E5BE00DF81FC /* playMp3*40.png */; };
+		F01FFCDE1D51EE3F00DF81FC /* playMp340.png in Resources */ = {isa = PBXBuildFile; fileRef = F01FFCDD1D51EE3F00DF81FC /* playMp340.png */; };
+		F01FFCE01D51EE6C00DF81FC /* pauseMp340.png in Resources */ = {isa = PBXBuildFile; fileRef = F01FFCDF1D51EE6C00DF81FC /* pauseMp340.png */; };
 		F04BCA751D3332AA00CCEDC6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F04BCA741D3332AA00CCEDC6 /* main.m */; };
 		F04BCA781D3332AA00CCEDC6 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F04BCA771D3332AA00CCEDC6 /* AppDelegate.m */; };
 		F04BCA7B1D3332AA00CCEDC6 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F04BCA7A1D3332AA00CCEDC6 /* ViewController.m */; };
@@ -242,6 +247,12 @@
 		F01E7C5C1D373F60009D7551 /* NDHeaderCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NDHeaderCell.xib; sourceTree = "<group>"; };
 		F01FFCCD1D50ADD400DF81FC /* NDChooseModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NDChooseModel.h; sourceTree = "<group>"; };
 		F01FFCCE1D50ADD400DF81FC /* NDChooseModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NDChooseModel.m; sourceTree = "<group>"; };
+		F01FFCD01D518FD500DF81FC /* NDWordModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NDWordModel.h; sourceTree = "<group>"; };
+		F01FFCD11D518FD500DF81FC /* NDWordModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NDWordModel.m; sourceTree = "<group>"; };
+		F01FFCD51D51E5BE00DF81FC /* playMp3*37.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "playMp3*37.png"; sourceTree = "<group>"; };
+		F01FFCD61D51E5BE00DF81FC /* playMp3*40.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "playMp3*40.png"; sourceTree = "<group>"; };
+		F01FFCDD1D51EE3F00DF81FC /* playMp340.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = playMp340.png; sourceTree = "<group>"; };
+		F01FFCDF1D51EE6C00DF81FC /* pauseMp340.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pauseMp340.png; sourceTree = "<group>"; };
 		F04BCA701D3332AA00CCEDC6 /* PrimaryEnglish.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PrimaryEnglish.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F04BCA741D3332AA00CCEDC6 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		F04BCA761D3332AA00CCEDC6 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = ../AppDelegate.h; sourceTree = "<group>"; };
@@ -838,6 +849,8 @@
 				F0BEC9351D4B31D40039CCC8 /* NDMatchModel.m */,
 				F0BEC9371D4B47B10039CCC8 /* NDFillingModel.h */,
 				F0BEC9381D4B47B10039CCC8 /* NDFillingModel.m */,
+				F01FFCD01D518FD500DF81FC /* NDWordModel.h */,
+				F01FFCD11D518FD500DF81FC /* NDWordModel.m */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -988,6 +1001,10 @@
 		F060A3A31D38CE0D009A1A06 /* Other */ = {
 			isa = PBXGroup;
 			children = (
+				F01FFCDD1D51EE3F00DF81FC /* playMp340.png */,
+				F01FFCDF1D51EE6C00DF81FC /* pauseMp340.png */,
+				F01FFCD51D51E5BE00DF81FC /* playMp3*37.png */,
+				F01FFCD61D51E5BE00DF81FC /* playMp3*40.png */,
 				F060A3A41D38CE0D009A1A06 /* bg.png */,
 				F060A3A51D38CE0D009A1A06 /* bgreen.jpg */,
 				F060A3A61D38CE0D009A1A06 /* message.png */,
@@ -1128,10 +1145,13 @@
 				F060A3C61D38CE0D009A1A06 /* setting@2X.png in Resources */,
 				F060A3421D3781C6009A1A06 /* MeNameCell.xib in Resources */,
 				F060A3C91D38CE0D009A1A06 /* message.png in Resources */,
+				F01FFCD71D51E5BE00DF81FC /* playMp3*37.png in Resources */,
 				F00216B61D420F4B006AB840 /* UnitTabBar.xib in Resources */,
+				F01FFCD81D51E5BE00DF81FC /* playMp3*40.png in Resources */,
 				F060A3B31D38CE0D009A1A06 /* tabbar_home_selected@2X.png in Resources */,
 				F060A3BB1D38CE0D009A1A06 /* code_selected@2X.png in Resources */,
 				F060A3D41D38D946009A1A06 /* ShareAlertView.xib in Resources */,
+				F01FFCE01D51EE6C00DF81FC /* pauseMp340.png in Resources */,
 				F060A3BA1D38CE0D009A1A06 /* code_selected.png in Resources */,
 				F060A3C31D38CE0D009A1A06 /* purchased.png in Resources */,
 				F060A3BD1D38CE0D009A1A06 /* phone@2X.png in Resources */,
@@ -1145,6 +1165,7 @@
 				F060A3B01D38CE0D009A1A06 /* tabbar_home.png in Resources */,
 				F00F8DC21D33636100896FC9 /* NDHomeCell.xib in Resources */,
 				F00F8DD41D339D1400896FC9 /* NDDetailCell.xib in Resources */,
+				F01FFCDE1D51EE3F00DF81FC /* playMp340.png in Resources */,
 				F060A3AD1D38CE0D009A1A06 /* tabbar_course@2X.png in Resources */,
 				F060A3C71D38CE0D009A1A06 /* bg.png in Resources */,
 				F060A3BC1D38CE0D009A1A06 /* phone.png in Resources */,
@@ -1269,6 +1290,7 @@
 				F04BCB331D3341A400CCEDC6 /* NDHomeController.m in Sources */,
 				F00F8DBD1D3362B200896FC9 /* NDHomeModel.m in Sources */,
 				F04BCB361D3341BF00CCEDC6 /* NDMeController.m in Sources */,
+				F01FFCD21D518FD600DF81FC /* NDWordModel.m in Sources */,
 				F01FFCCF1D50ADD400DF81FC /* NDChooseModel.m in Sources */,
 				F00F8E1024BAD09300896FC9 /* MJRefreshFooter.m in Sources */,
 			);

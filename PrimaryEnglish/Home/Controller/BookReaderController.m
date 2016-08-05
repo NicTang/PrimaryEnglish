@@ -5,7 +5,7 @@
 //  Created by Nic Downey on 16/7/21.
 //  Copyright © 2016年 Nic. All rights reserved.
 //
-#define HttpUrl @"http://app.ekaola.com"
+//#define HttpUrl @"http://app.ekaola.com"
 #define DataSavePath @"/Users/tangzhaoning/请求数据/%@.plist"
 
 #import "BookReaderController.h"
@@ -220,7 +220,7 @@
                     NSInteger index = range.location+range.length+2;
                     NSString *srcString = [imgUrl substringFromIndex:index];
                     NSString *imgString = [srcString substringToIndex:srcString.length-2];
-                    NSString *img = [NSString stringWithFormat:@"%@%@",HttpUrl,imgString];
+                    NSString *img = [NSString stringWithFormat:PrefixForUrl,imgString];
                     //添加图片之前判断是否继续添加
                     if (flag<1) {
                         [imageArray addObject:img];
@@ -236,7 +236,7 @@
                     NSInteger toIndex = mp3Range.location + mp3Range.length;
                     NSInteger length = toIndex - fromIndex;
                     NSString *mp3String = [urlString substringWithRange:NSMakeRange(fromIndex, length)];
-                    NSString *mp3 = [NSString stringWithFormat:@"%@/%@",HttpUrl,mp3String];
+                    NSString *mp3 = [NSString stringWithFormat:PrefixForUrl,mp3String];
                     [mp3Arr addObject:mp3];
                 }
             }

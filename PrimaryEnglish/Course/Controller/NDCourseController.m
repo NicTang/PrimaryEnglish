@@ -115,9 +115,12 @@
 #pragma mark - UICollectionView代理方法
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
+    //导航栏返回按钮文字为空，在此可以统一设置
+    self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc]initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:nil];
     NDCourseModel *model = self.dataArray[indexPath.item];
     NDDetailController *detailVc= [[NDDetailController alloc]init];
     detailVc.courseID = model.pkgid;
+    detailVc.title = model.title;
     [self.navigationController pushViewController:detailVc animated:YES];
 }
 @end

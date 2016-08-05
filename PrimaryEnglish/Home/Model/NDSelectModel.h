@@ -15,7 +15,7 @@
 @property (nonatomic,copy) NSString<Optional> *ques;
 @property (nonatomic,copy) NSString<Optional> *expl;
 //卡片独有
-//@property (nonatomic,assign) BOOL<Optional> ispic;
+@property (nonatomic,strong) NSNumber<Optional>* ispic;
 @property (nonatomic,strong) NSArray<Optional> *choices;
 
 //填空、卡片

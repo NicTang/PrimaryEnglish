@@ -78,7 +78,6 @@
         NDInfoModel *model = [[NDInfoModel alloc]init];
         [model setValuesForKeysWithDictionary:infoDict];
         self.model = model;
-        self.navigationItem.title = model.title;
         
         NSArray *array = responseObject[@"senceList"];
         self.cellDataArray = [NDDetailModel arrayOfModelsFromDictionaries:array];
@@ -112,35 +111,35 @@
     NSLog(@"self.flag:%ld",self.flag);
     //导航栏返回按钮文字为空，在此可以统一设置
     self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc]initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:nil];
-    if (self.flag==0) {
-        BookReaderController *unitVc = [[BookReaderController alloc]init];
-        unitVc.selectIndex = indexPath.row;
+    if ([self.title containsString:@"课本点读"]) {
+        BookReaderController *readerVc = [[BookReaderController alloc]init];
+        readerVc.selectIndex = indexPath.row;
         //当前书本的所有信息数组
-        unitVc.unitsArray = self.cellDataArray;
+        readerVc.unitsArray = self.cellDataArray;
         //接收请求单元详细数据的参数
-        unitVc.senceid = [self.cellDataArray[indexPath.row] senceid];
-        NSLog(@"unitVc.senceid:%@",unitVc.senceid);
+        readerVc.senceid = [self.cellDataArray[indexPath.row] senceid];
+        NSLog(@"unitVc.senceid:%@",readerVc.senceid);
         //设置导航栏标题
-        unitVc.title = [self.cellDataArray[indexPath.row] title];
-        [self.navigationController pushViewController:unitVc animated:YES];
-    }else if(self.flag==1)
+        readerVc.title = [self.cellDataArray[indexPath.row] title];
+        [self.navigationController pushViewController:readerVc animated:YES];
+    }else if([self.title containsString:@"词汇练习"])
     {
         VocabularyPracticeController *vocabularyVc = [[VocabularyPracticeController alloc]init];
         vocabularyVc.title = [self.cellDataArray[indexPath.row] title];
         //请求单元详情的参数
         vocabularyVc.senceid = [self.cellDataArray[indexPath.row] senceid];
         [self.navigationController pushViewController:vocabularyVc animated:YES];
-    }else{
-//        VocabularyPracticeController *vocabularyVc = [[VocabularyPracticeController alloc]init];
-//        vocabularyVc.title = [self.cellDataArray[indexPath.row] title];
-//        //请求单元详情的参数
-//        vocabularyVc.senceid = [self.cellDataArray[indexPath.row] senceid];
-//        [self.navigationController pushViewController:vocabularyVc animated:YES];
-        MatchedPracticeController *matchVc = [[MatchedPracticeController alloc]init];
-        matchVc.title = [self.cellDataArray[indexPath.row] title];
+    }else if([self.title containsString:@"配套练习"]){
+        VocabularyPracticeController *vocabularyVc = [[VocabularyPracticeController alloc]init];
+        vocabularyVc.title = [self.cellDataArray[indexPath.row] title];
         //请求单元详情的参数
-        matchVc.senceid = [self.cellDataArray[indexPath.row] senceid];
-        [self.navigationController pushViewController:matchVc animated:YES];
+        vocabularyVc.senceid = [self.cellDataArray[indexPath.row] senceid];
+        [self.navigationController pushViewController:vocabularyVc animated:YES];
+//        MatchedPracticeController *matchVc = [[MatchedPracticeController alloc]init];
+//        matchVc.title = [self.cellDataArray[indexPath.row] title];
+//        //请求单元详情的参数
+//        matchVc.senceid = [self.cellDataArray[indexPath.row] senceid];
+//        [self.navigationController pushViewController:matchVc animated:YES];
     }
     
 }

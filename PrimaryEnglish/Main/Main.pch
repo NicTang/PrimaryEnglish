@@ -42,6 +42,10 @@
 #define KWeChatAppIDString @"wx7c6ce7f7f9211fc5"
 #define KWeChatAppSecretString @"5c3046d4dbeda1fe6fa2f3603b85a1cf"
 
+//声音图片URL拼接
+//#define HttpUrl @"http://app.ekaola.com"
+#define PrefixForUrl @"http://app.ekaola.com/%@"
+
 #import "NDLoginController.h"
 //用户模型存储路径
 #define NDModelSavePath [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:@"user.txt"]

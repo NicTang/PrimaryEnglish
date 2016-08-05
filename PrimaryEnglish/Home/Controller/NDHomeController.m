@@ -113,6 +113,7 @@
     NDHomeModel *model = self.dataArray[indexPath.item];
     NDDetailController *detailVc= [[NDDetailController alloc]init];
     detailVc.courseID = model.homeID;
+    detailVc.title = model.name;
     detailVc.flag = remainder;
     [self.navigationController pushViewController:detailVc animated:YES];
 }

@@ -7,6 +7,23 @@
 //
 
 #define DataSavePath @"/Users/tangzhaoning/词汇练习数据/%@-%@.plist"
+#define ScaleValue KScreenWidth/375
+#define Padding 20*ScaleValue
+#define PaddingX 20*ScaleValue
+#define ProgressLabelW 40*ScaleValue
+#define PlayBtnWH 30*ScaleValue
+#define ChoiceLabelH 3*PaddingX
+#define NextBtnH 40*ScaleValue
+
+#define MatchPaddingX 3*Padding
+#define MatchPaddingY 10*ScaleValue
+
+#define BaseImgW (KScreenWidth-3*MatchPaddingX)*7/13
+#define BaseImgH BaseImgW*255/300
+
+#define MatchImgW (KScreenWidth-3*MatchPaddingX)*6/13
+#define MatchImgH MatchImgW*255/300
+
 #import "VocabularyPracticeController.h"
 #import "AFHTTPSessionManager.h"//网络请求
 #import "UIImageView+AFNetworking.h"//显示网络图片
@@ -14,20 +31,25 @@
 #import "NDChooseModel.h"//词汇练习选择题目模型
 #import "NDMatchModel.h"//词汇练习图片拖拽连线模型
 #import "NDFillingModel.h"//词汇练习填空题模型
+#import "NDWordModel.h"//词汇练习选词成句模型
 #import <AVFoundation/AVFoundation.h>//音频播放
 
 @interface VocabularyPracticeController ()<UIScrollViewDelegate>
 {
     UIScrollView *_scrollView;
-    UIView *_selectView;
+    UIView *_exerciseView;
+    UIProgressView *_progressView;
     AVPlayer *_player;
+    NSTimer *_timer;
 }
 @property (nonatomic,strong) NSMutableDictionary *cardDict;
 @property (nonatomic,strong) NSMutableArray *exerciseArray;
 //@property (nonatomic,strong) NSArray *matchingArray;
-//@property (nonatomic,strong) NSArray *fillingArray;
 @property (nonatomic,assign) NSInteger tapCount;
 @property (nonatomic,assign) NSInteger currentPage;
+
+@property (nonatomic,strong) UIView *selectedView;
+
 @end
 
 @implementation VocabularyPracticeController
@@ -36,6 +58,7 @@
     
     [super viewDidLoad];
     [self createUI];
+    
     [self requestDataWithSenceid:self.senceid completionHandler:^(NSMutableDictionary *cardDict, NSArray *exerciseArray) {
         NSLog(@"%ld-%ld",cardDict.count,exerciseArray.count);
         self.currentPage = 0;
@@ -66,13 +89,6 @@
 //    }
 //    return _matchingArray;
 //}
-//- (NSArray *)fillingArray
-//{
-//    if (!_fillingArray) {
-//        _fillingArray = [NSArray array];
-//    }
-//    return _fillingArray;
-//}
 - (void)createUI
 {
     _scrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, 0, KScreenWidth, KScreenHeight-64)];
@@ -97,13 +113,225 @@
             imageView.frame = CGRectMake(i*KScreenWidth+30, 30, KScreenWidth-60, KScreenHeight-150);
             [_scrollView addSubview:imageView];
         }
-        CGRect frame = CGRectMake(self.cardDict.count*KScreenWidth, 0, KScreenWidth, KScreenHeight);
-         UIView *view = [self createViewWithFrame:frame Type:@""];
-        view.backgroundColor = [UIColor greenColor];
-        _scrollView.contentSize = CGSizeMake(KScreenWidth*(self.cardDict.count+1), 0);
-        [_scrollView addSubview:view];
+        //播放音频
         completionHandler();
     }
+    _exerciseView = [self createViewWithIndex:0];
+    _scrollView.contentSize = CGSizeMake(KScreenWidth*(self.cardDict.count+1), 0);
+    [_scrollView addSubview:_exerciseView];
+}
+- (UIView *)createViewWithIndex:(NSInteger)index
+{
+    NSDictionary *modelDict = self.exerciseArray[index];
+    NSString *type = modelDict.allKeys[0];
+    
+    UIView *view = [[UIView alloc]init];
+    view.backgroundColor = [UIColor whiteColor];
+    view.frame = CGRectMake(self.cardDict.count*KScreenWidth, 0, KScreenWidth, KScreenHeight);
+    CGFloat progressW = KScreenWidth-2*PaddingX - ProgressLabelW;
+    _progressView = [[UIProgressView alloc]initWithFrame:CGRectMake(PaddingX, 1.5*Padding, progressW, 30)];
+    _progressView.transform = CGAffineTransformMakeScale(1.0f, 4.0f);
+    _progressView.contentMode = UIViewContentModeScaleAspectFill;
+    _progressView.layer.cornerRadius = 3.5;
+    _progressView.layer.masksToBounds = YES;
+    _progressView.trackTintColor = Color(230, 230, 230);
+    _progressView.progressTintColor = Color(92, 219, 85);
+    _progressView.progress = (index+1)*1.0/self.exerciseArray.count;
+    [view addSubview:_progressView];
+    
+    CGFloat labelX = CGRectGetMaxX(_progressView.frame);
+    UILabel *progressLabel = [[UILabel alloc]initWithFrame:CGRectMake(labelX, Padding, ProgressLabelW, 20)];
+    
+    NSString *textStr = [NSString stringWithFormat:@"%ld/%ld",(index+1),self.exerciseArray.count];
+    [self setAttributedTextForLabel:progressLabel withTextString:textStr textColor:Color(168, 168, 168) font:[UIFont boldSystemFontOfSize:13]];
+    [view addSubview:progressLabel];    
+    
+    CGFloat textX = PaddingX;
+    CGFloat textY = CGRectGetMaxY(_progressView.frame) + Padding;
+    CGRect playBtnFrame = CGRectMake(PaddingX, textY, PlayBtnWH, PlayBtnWH);
+    if ([type isEqualToString:@"simple_choose"]) {
+        NDChooseModel *choose = modelDict[type];
+        UIButton *playBtn = [self isCreatePlayBtnByMp3Url:choose.mp3Url withFrame:playBtnFrame playImage:@"playMp340" pauseImage:nil];
+        if (playBtn!=nil) {
+            
+            NSURL *mp3Url = [NSURL URLWithString:choose.mp3Url];
+            AVPlayer *player = [AVPlayer playerWithURL:mp3Url];
+            [player play];
+            
+            textX += PlayBtnWH + 5;
+            [view addSubview:playBtn];
+        }
+        CGFloat textW = KScreenWidth - textX - PaddingX;
+        UILabel *tipLabel = [self tipLabelWithFrame:CGRectMake(textX, textY, textW, PlayBtnWH) labelText:choose.tipLabelText];
+        [view addSubview:tipLabel];
+        
+        CGFloat chooseY = CGRectGetMaxY(tipLabel.frame) + Padding;
+        if (choose.isPic) {
+            int columns = 2;
+            CGFloat imgViewWH = (KScreenWidth - (columns+1)*PaddingX)/columns;
+            for (int i = 0; i<choose.imageArray.count; i++) {
+                UIImageView *imageView = [[UIImageView alloc]init];
+                imageView.tag = choose.trueAnswerIndex+i;
+                CGFloat imageY = chooseY +i/columns*(imgViewWH + Padding);
+                imageView.frame = CGRectMake(i%columns*(PaddingX+imgViewWH)+PaddingX, imageY, imgViewWH, imgViewWH);
+                NSURL *url = [NSURL URLWithString:choose.imageArray[i]];
+                [imageView setImageWithURL:url];
+                imageView.layer.borderWidth = 2;
+                imageView.layer.borderColor = Color(168, 168, 168).CGColor;
+                imageView.backgroundColor = Color(132, 234, 37);
+                
+                CGPoint center = CGPointMake(imgViewWH, imgViewWH);
+                UIView *colorView = [[UIView alloc]init];
+                colorView.bounds = CGRectMake(0, 0, 40, 40);
+                colorView.backgroundColor = Color(92, 219, 85);
+                colorView.center = center;
+                colorView.transform = CGAffineTransformMakeRotation(M_PI_4);
+                colorView.hidden = YES;
+                imageView.clipsToBounds = YES;
+                [imageView addSubview:colorView];
+                
+                imageView.userInteractionEnabled = YES;
+                UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(tapToSelectView:)];
+                [imageView addGestureRecognizer:tap];
+                [view addSubview:imageView];
+            }
+        }else
+        {
+            for (int j = 0; j<choose.textArray.count; j++) {
+                UILabel *choiceLabel = [[UILabel alloc]initWithFrame:CGRectMake(PaddingX, chooseY+j*(ChoiceLabelH+Padding), KScreenWidth-2*PaddingX, ChoiceLabelH)];
+                [self setAttributedTextForLabel:choiceLabel withTextString:choose.textArray[j] textColor:[UIColor whiteColor] font:[UIFont boldSystemFontOfSize:18]];
+                choiceLabel.backgroundColor = Color(168, 168, 168);
+                choiceLabel.tag = choose.trueAnswerIndex + j;
+                
+                choiceLabel.userInteractionEnabled = YES;
+                UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(tapToSelectView:)];
+                [choiceLabel addGestureRecognizer:tap];
+                [view addSubview:choiceLabel];
+            }
+        }
+    } else if ([type isEqualToString:@"img_matching"]){
+        NDMatchModel *match = modelDict[type];
+        UIButton *playBtn = [self isCreatePlayBtnByMp3Url:match.mp3Url withFrame:playBtnFrame playImage:@"playMp340" pauseImage:nil];
+        if (playBtn!=nil) {
+            textX += PlayBtnWH + 5;
+            [view addSubview:playBtn];
+        }
+        CGFloat textW = KScreenWidth - textX - PaddingX;
+        UILabel *tipLabel = [self tipLabelWithFrame:CGRectMake(textX, textY, textW, PlayBtnWH) labelText:match.tipLabelText];
+        [view addSubview:tipLabel];
+        CGFloat chooseY = CGRectGetMaxY(tipLabel.frame) + Padding;
+        for (int m = 0; m<match.baseImgArr.count; m++) {
+            UIImageView *baseImageView = [[UIImageView alloc]initWithFrame:CGRectMake(MatchPaddingX, chooseY+m*(BaseImgH+MatchPaddingY), BaseImgW, BaseImgH)];
+            baseImageView.layer.borderWidth = 3;
+            NSURL *baseImgUrl = [NSURL URLWithString:match.baseImgArr[m]];
+            [baseImageView setImageWithURL:baseImgUrl];
+            [view addSubview:baseImageView];
+            
+            UIView *matchView = [[UIView alloc]init];
+            matchView.backgroundColor = [UIColor whiteColor];
+            matchView.bounds = CGRectMake(0, 0, MatchImgW, MatchImgH);
+            CGFloat centerX = baseImageView.center.x + (BaseImgW+MatchImgW)/2 + MatchPaddingX;
+            matchView.center = CGPointMake(centerX, baseImageView.center.y);
+            matchView.layer.borderWidth = 3;
+            matchView.layer.shadowColor = Color(234, 103, 37).CGColor;
+            UIImageView *matchImageView = [[UIImageView alloc]initWithFrame:matchView.bounds];
+            NSURL *matchImgUrl = [NSURL URLWithString:match.matchImgArr[m]];
+            [matchImageView setImageWithURL:matchImgUrl];
+            [matchView addSubview:matchImageView];
+            [view addSubview:matchView];
+        }
+        
+    }else if ([type isEqualToString:@"filling"]){
+//        NDFillingModel *filling = modelDict[type];
+        
+    }else if ([type isEqualToString:@"word_matching"]){
+//        NDWordModel *word = modelDict[type];
+        
+    }
+    UIButton *nextBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    CGFloat nextBtnY = KScreenHeight - NextBtnH - 64 - Padding;
+    nextBtn.frame = CGRectMake(PaddingX, nextBtnY, KScreenWidth-2*PaddingX, NextBtnH);
+    nextBtn.tag = index;
+    NSString *titleStr = (index==self.exerciseArray.count-1)?@"提交":@"下一题";
+    [nextBtn setTitle:titleStr forState:UIControlStateNormal];
+    [nextBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [nextBtn addTarget:self action:@selector(nextViewForExercise:) forControlEvents:UIControlEventTouchUpInside];
+    [nextBtn setBackgroundColor:Color(234, 103, 37)];
+    nextBtn.layer.cornerRadius = 5;
+    [view addSubview:nextBtn];
+    return view;
+}
+- (void)tapToSelectView:(UITapGestureRecognizer *)tapGesture
+{
+    if (self.selectedView==nil) {
+        self.selectedView = [[UIView alloc]init];
+    }
+    
+    BOOL isChanged = NO;
+    UIView *view = tapGesture.view;
+//    NSInteger index = view.tag;
+    isChanged = (self.selectedView==view)? NO:YES;
+    
+    if ([view isKindOfClass:[UIImageView class]]) {
+        if (isChanged) {
+            UIView *colorView = view.subviews[0];
+            colorView.hidden = NO;
+            view.layer.borderColor = Color(92, 219, 85).CGColor;
+            if (self.selectedView.subviews.count!=0) {
+                UIView *selColorView = self.selectedView.subviews[0];
+                selColorView.hidden = YES;
+                self.selectedView.layer.borderColor = Color(168, 168, 168).CGColor;
+            }
+        }
+    }else if ([view isKindOfClass:[UILabel class]]){
+        if (isChanged) {
+            view.backgroundColor = Color(92, 219, 85);
+            self.selectedView.backgroundColor = Color(168, 168, 168);
+        }
+    }
+    self.selectedView = view;
+}
+- (void)nextViewForExercise:(UIButton *)nextBtn
+{
+    [_exerciseView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    [_exerciseView removeFromSuperview];
+    _exerciseView = nil;
+    NSInteger nextIndex = nextBtn.tag+1;
+    if (nextIndex<self.exerciseArray.count) {
+        _exerciseView = [self createViewWithIndex:nextIndex];
+    }else if (nextIndex==self.exerciseArray.count)
+    {
+        UIView *resultView = [[UIView alloc]initWithFrame:CGRectMake(self.cardDict.count*KScreenWidth+10, 10, KScreenWidth/2, KScreenHeight/2)];
+        resultView.backgroundColor = [UIColor blueColor];
+        _exerciseView = resultView;
+    }
+    [_scrollView addSubview:_exerciseView];
+}
+- (UIButton *)isCreatePlayBtnByMp3Url:(NSString *)mp3Url withFrame:(CGRect)frame playImage:(NSString *)playImage pauseImage:(NSString *)pauseImage
+{
+    if (![mp3Url isEqualToString:@""]&&mp3Url.length!=0) {
+        UIButton *playBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        playBtn.frame = frame;
+        [playBtn setImage:[UIImage imageNamed:playImage] forState:UIControlStateNormal];
+        [playBtn addTarget:self action:@selector(playMp3:) forControlEvents:UIControlEventTouchUpInside];
+        return playBtn;
+    }
+    return nil;
+}
+- (UILabel *)tipLabelWithFrame:(CGRect)frame labelText:(NSString *)text
+{
+    UILabel *tipLabel = [[UILabel alloc]initWithFrame:frame];
+    [tipLabel setFont:[UIFont systemFontOfSize:16*ScaleValue]];
+    tipLabel.numberOfLines = 0;
+    tipLabel.text = text;
+    return tipLabel;
+}
+- (void)setAttributedTextForLabel:(UILabel *)label withTextString:(NSString *)textString textColor:(UIColor *)textColor font:(UIFont *)font
+{
+    NSDictionary *dict = @{NSForegroundColorAttributeName:textColor,NSFontAttributeName:font};
+    NSAttributedString *attrs = [[NSAttributedString alloc]initWithString:textString attributes:dict];
+    label.textAlignment = NSTextAlignmentCenter;
+    [label setAttributedText:attrs];
 }
 - (void)rotateToShowBackgroundImage:(UITapGestureRecognizer *)tap
 {
@@ -126,41 +354,6 @@
         [self performSelector:@selector(initMp3PlayerWithArray:) withObject:cardArray afterDelay:1.0];
     }
 }
-#pragma mark - UIScrollViewDelegate代理方法
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
-{
-    //  当前滚动到第几张图片
-    int index = scrollView.contentOffset.x/KScreenWidth;
-    //滚动之后如果还在当前页，则不播放音乐
-    if (self.currentPage==index) {
-        return;
-    }else
-    {
-        self.currentPage = index;
-    }
-    NSArray *mp3Array = self.cardDict[@(index)];
-    [self initMp3PlayerWithArray:mp3Array];
-    
-}
-- (void)initMp3PlayerWithArray:(NSArray *)mp3Array
-{
-    NSURL *mp3Url = [NSURL URLWithString:mp3Array[1]];
-    _player = [[AVPlayer alloc]initWithURL:mp3Url];
-    [_player play];
-}
-- (UIView *)createViewWithFrame:(CGRect)frame Type:(NSString *)type
-{
-    UIView *view = [[UIView alloc]init];
-    view.frame = frame;
-//    if ([type isEqualToString:@""]) {
-//        
-//    } else if ([type isEqualToString:@""]){
-//        
-//    }else if ([type isEqualToString:@""]){
-//        
-//    }
-    return view;
-}
 - (void)requestDataWithSenceid:(NSString *)senceid completionHandler:(void(^)(NSMutableDictionary *cardDict,NSArray *exerciseArray))handler
 {
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
@@ -169,7 +362,7 @@
     NSString *url = [NSString stringWithFormat:KUnitDetailString,senceid];
     [manager GET:url parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSArray *rootArray = responseObject;
-//        [rootArray writeToFile:[NSString stringWithFormat:DataSavePath,self.title] atomically:YES];
+        //        [rootArray writeToFile:[NSString stringWithFormat:DataSavePath,self.title] atomically:YES];
         for (int i = 0; i<rootArray.count; i++) {
             NSDictionary *dict = rootArray[i];
             NSArray *array = dict[@"content"];
@@ -178,7 +371,6 @@
             
             NSDictionary *dataDict = [NSDictionary dictionary];
             if ([content containsString:@"card"]) {//卡片
-//                if (i==0&&i!=rootArray.count-1) {//卡片
                 dataDict = [self cutOffString:content WithSign:@"uniqueID"];
                 NSArray *arr = dataDict[@"testObj"];//卡片数组
                 
@@ -191,40 +383,35 @@
                     NSDictionary *frontDict = cardDict[@"front"];
                     NSString *frontMp3 = [self getUrlWithDict:frontDict relyOn:@"audio" returnUrlKey:@"url"];
                     cardArr = @[frontImg,frontMp3,backImg];
-//                    [cardArr writeToFile:[NSString stringWithFormat:DataSavePath,@"cardArr",self.title] atomically:YES];
+                    //                    [cardArr writeToFile:[NSString stringWithFormat:DataSavePath,@"cardArr",self.title] atomically:YES];
                     [self.cardDict setObject:cardArr forKey:@(j)];
                 }
             }else if ([content containsString:@"objective"]){//题目
-//            }else if (i==rootArray.count-1){//题目
                 dataDict = [self cutOffString:content WithSign:@"type"];
                 NSArray *dataArr = dataDict[@"data"];
                 [dataArr writeToFile:[NSString stringWithFormat:DataSavePath,@"dataArr",self.title] atomically:YES];
-//                NSLog(@"obj-arr:%ld-%@",dataArr.count,dataArr);
-                
-//                self.exerciseArray = [NDSelectModel arrayOfModelsFromDictionaries:dataArr];
+                //                NSLog(@"obj-arr:%ld-%@",dataArr.count,dataArr);
                 NSArray *modelArray = [NDSelectModel arrayOfModelsFromDictionaries:dataArr];
-//                NSMutableDictionary *exerciseDict = [NSMutableDictionary dictionary];
-                NSLog(@"modelArray:%ld",modelArray.count);
                 for (NDSelectModel *model in modelArray) {
-//                    NSDictionary *exerciseDict = [NSDictionary dictionary];
                     NSMutableDictionary *exerciseDict = [NSMutableDictionary dictionary];
                     NSString *type = model.type;
                     id exercise = [model parseDataByType:type];
+                    if (exercise==nil) {
+                        continue;
+                    }
                     if ([type isEqualToString:@"simple_choose"]) {
                         NDChooseModel *choose = exercise;
-                        NSLog(@"choose:%@-%ld",choose,choose.trueAnswerIndex);
-//                        [exerciseDict setValue:choose forKey:type];
                         [exerciseDict setObject:choose forKey:type];
                     } else if ([type isEqualToString:@"img_matching"]){
                         NDMatchModel *match = exercise;
-                        NSLog(@"match:%@-%@",match,match.matchImgArr);
-//                        [exerciseDict setValue:match forKey:type];
                         [exerciseDict setObject:match forKey:type];
                     }else if ([type isEqualToString:@"filling"]){
                         NDFillingModel *filling = exercise;
-                        NSLog(@"filling:%@-%@",filling,filling.content);
-//                        [exerciseDict setValue:filling forKey:type];
+                        //                        NSLog(@"filling:%@",filling);
                         [exerciseDict setObject:filling forKey:type];
+                    }else if ([type isEqualToString:@"word_matching"]){
+                        NDWordModel *word = exercise;
+                        [exerciseDict setObject:word forKey:type];
                     }
                     [self.exerciseArray addObject:exerciseDict];
                 }
@@ -241,7 +428,7 @@
 - (NSString *)getUrlWithDict:(NSDictionary *)dict relyOn:(NSString *)newDictName returnUrlKey:(NSString *)urlKey
 {
     NSDictionary *newDict = dict[newDictName];
-    NSString *urlString = [NSString stringWithFormat:@"http://app.ekaola.com/%@",newDict[urlKey]];
+    NSString *urlString = [NSString stringWithFormat:PrefixForUrl,newDict[urlKey]];
     return urlString;
 }
 //根据题目类型截取字符串，返回一个字典
@@ -262,6 +449,27 @@
     }
     return dict;
 }
+#pragma mark - UIScrollViewDelegate代理方法
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{    //  当前滚动到第几张图片
+    int index = scrollView.contentOffset.x/KScreenWidth;
+    //滚动之后如果还在当前页，则不播放音乐
+    if (self.currentPage==index) {
+        return;
+    }else
+    {
+        self.currentPage = index;
+    }
+    NSArray *mp3Array = self.cardDict[@(index)];
+    [self initMp3PlayerWithArray:mp3Array];
+}
+- (void)initMp3PlayerWithArray:(NSArray *)mp3Array
+{
+    NSURL *mp3Url = [NSURL URLWithString:mp3Array[1]];
+    _player = [[AVPlayer alloc]initWithURL:mp3Url];
+    [_player play];
+}
+
 //根据count的值得到一组不重复的随机数0～n-1
 - (NSArray *)getNumbersOfRandoms:(NSInteger)count
 {
