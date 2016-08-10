@@ -17,6 +17,7 @@
 @property (weak, nonatomic) IBOutlet UIButton *codeBtn;
 @property (weak, nonatomic) IBOutlet UIImageView *phoneIcon;
 @property (weak, nonatomic) IBOutlet UIImageView *codeIcon;
+@property (weak, nonatomic) IBOutlet UIButton *loginBtn;
 
 @property (nonatomic,strong) NSTimer *timer;
 @property (nonatomic,assign) int countDowmTime;
@@ -34,16 +35,22 @@
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(hideKeyBoard)];
     [self.view addGestureRecognizer:tap];
 }
-
-//- (UIStatusBarStyle)preferredStatusBarStyle
-//{
-//    return UIStatusBarStyleLightContent;
-//}
+- (void)awakeFromNib
+{
+    self.loginBtn.layer.cornerRadius = 8;
+    [self.codeBtn setBackgroundColor:Color(234, 103, 37)];
+}
 /**
  *  从xib中加载控制器
  */
 - (instancetype)init
 {
+//    if (self = [super init]) {
+//        self = [self initWithNibName:@"NDLoginController" bundle:[NSBundle mainBundle]];
+//        self.loginBtn.layer.cornerRadius = 8;
+//        [self.codeBtn setBackgroundColor:Color(234, 103, 37)];
+//    }
+//    return self;
     return [self initWithNibName:@"NDLoginController" bundle:[NSBundle mainBundle]];
 }
 /**
@@ -58,7 +65,7 @@
     self.countDowmTime = CountDown;
     self.codeBtn.enabled = YES;
     [self.codeBtn setTitle:@"获取验证码" forState:UIControlStateNormal];
-    [self.codeBtn setBackgroundColor:[UIColor greenColor]];
+    [self.codeBtn setBackgroundColor:Color(234, 103, 37)];
     [self.timer invalidate];
 }
 /**

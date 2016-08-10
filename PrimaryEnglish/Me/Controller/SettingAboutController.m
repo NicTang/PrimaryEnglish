@@ -16,6 +16,12 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.view.backgroundColor = [UIColor blueColor];
+    
+    UIWebView *web = [[UIWebView alloc]initWithFrame:self.view.bounds];
+    NSURL *url = [NSURL URLWithString:@"http://www.engua.com"];
+    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+    [web loadRequest:request];
+    [self.view addSubview:web];
+//    self.view.backgroundColor = [UIColor blueColor];
 }
 @end

@@ -9,6 +9,8 @@
 #import "NDSettingController.h"
 #import "RDVTabBarController.h"
 #import "SettingAboutController.h"
+#import "UMSocialSnsService.h"//友盟分享
+#import "UMSocialSnsPlatformManager.h"
 
 @interface NDSettingController ()<UITableViewDelegate,UITableViewDataSource>
 
@@ -36,13 +38,17 @@
     [self.view addSubview:_tableView];
     
     _logOutBtn = [UIButton buttonWithType:UIButtonTypeSystem];
-    CGFloat btnX = 30;
+    CGFloat btnX = 16;
     CGFloat btnY = CGRectGetMaxY(_tableView.frame);
     CGFloat btnW = KScreenWidth - btnX * 2;
-    _logOutBtn.frame = CGRectMake(btnX, btnY, btnW, 60);
-    [_logOutBtn setBackgroundColor:Color(231, 71, 78)];
-    [_logOutBtn setTitle:@"退出登录" forState:UIControlStateNormal];
-    [_logOutBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    _logOutBtn.frame = CGRectMake(btnX, btnY, btnW, 50);
+    [_logOutBtn setBackgroundColor:Color(234, 103, 37)];
+    
+    NSDictionary *dict = @{NSForegroundColorAttributeName:[UIColor whiteColor],NSFontAttributeName:[UIFont systemFontOfSize:19]};
+    NSAttributedString *attrs = [[NSAttributedString alloc]initWithString:@"退出登录" attributes:dict];
+    _logOutBtn.contentMode = UIViewContentModeCenter;
+    [_logOutBtn setAttributedTitle:attrs forState:UIControlStateNormal];
+    _logOutBtn.layer.cornerRadius = 5;
     [_logOutBtn addTarget:self action:@selector(logOutClick:) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:_logOutBtn];
     self.view.backgroundColor = Color(235, 235, 241);
@@ -76,11 +82,13 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (indexPath.section==0) {
-        UIAlertController *alert = [ UIAlertController alertControllerWithTitle:@"分享" message:nil preferredStyle:UIAlertControllerStyleActionSheet];
-        [alert addAction:[UIAlertAction actionWithTitle:@"分享给微信好友" style:UIAlertActionStyleDefault handler:nil]];
-        [alert addAction:[UIAlertAction actionWithTitle:@"分享到朋友圈" style:UIAlertActionStyleDefault handler:nil]];
-        [alert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
-        [self presentViewController:alert animated:YES completion:nil];
+        [UMSocialData defaultData].extConfig.wechatSessionData.url = @"http://baidu.com";
+        [UMSocialData defaultData].extConfig.wechatTimelineData.url = @"http://baidu.com";
+        [UMSocialData defaultData].extConfig.wechatSessionData.title = @"微信好友title";
+        [UMSocialData defaultData].extConfig.wechatTimelineData.title = @"微信朋友圈title";
+        //分享png、jpg图片
+        [UMSocialSnsService presentSnsIconSheetView:self appKey:KUMengAppKeyString shareText:@"你好" shareImage:[UIImage imageNamed:@"placeholderImage"] shareToSnsNames:@[UMShareToSina,UMShareToWechatSession,UMShareToWechatTimeline] delegate:nil];
+//        [[UMSocialData defaultData].urlResource setResourceType:UMSocialUrlResourceTypeImage url:nil];
         
     }else if (indexPath.section==1)
     {

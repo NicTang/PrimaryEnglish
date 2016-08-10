@@ -7,7 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
+@class NDDetailModel;
 
 @interface TextView : UICollectionReusableView
 
+@property (nonatomic,strong) NDDetailModel *model;
+@property (nonatomic,strong) UILabel *recommendLabel;
 @end

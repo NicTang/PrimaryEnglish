@@ -8,6 +8,9 @@
 
 #import "AppDelegate.h"
 #import "NDRootViewController.h"
+#import "UMSocial.h"
+#import "UMSocialWechatHandler.h"
+#import "UMSocialSinaSSOHandler.h"
 
 @interface AppDelegate ()
 
@@ -17,6 +20,13 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    
+    //设置友盟社会化组件appkey
+    [UMSocialData setAppKey:KUMengAppKeyString];
+    //设置微信AppId、appSecret，分享url
+    [UMSocialWechatHandler setWXAppId:KWeChatAppIDString appSecret:KWeChatAppSecretString url:@"http://www.umeng.com/social"];
+    //打开新浪微博的SSO开关，设置新浪微博回调地址，这里必须要和你在新浪微博后台设置的回调地址一致。需要 #import "UMSocialSinaSSOHandler.h"
+    [UMSocialSinaSSOHandler openNewSinaSSOWithAppKey:KSinaAppIDString secret:KSinaAppSecretString RedirectURL:@"http://sns.whalecloud.com/sina2/callback"];
     
     NSDictionary *dict = @{NSFontAttributeName :[UIFont systemFontOfSize:18],NSForegroundColorAttributeName:[UIColor whiteColor]};
     //设置导航栏的标题文本样式
@@ -30,7 +40,6 @@
 //    [[UIBarButtonItem appearance]setBackButtonTitlePositionAdjustment:UIOffsetMake(NSIntegerMin, NSIntegerMin) forBarMetrics:UIBarMetricsDefault];
 //    [UITabBar appearance].translucent = NO;
 //    [[UITabBar appearance]setTintColor:[UIColor whiteColor]];
-    
     //1、创建窗口
     self.window.backgroundColor = [UIColor whiteColor];
     //自定义控制器
@@ -42,7 +51,15 @@
     
     return YES;
 }
-
+//社交分享回调方法
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
+{
+    BOOL result = [UMSocialSnsService handleOpenURL:url];
+    if (result == FALSE) {
+        //调用其他SDK，例如支付宝SDK等
+    }
+    return result;
+}
 - (void)applicationWillResignActive:(UIApplication *)application {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
     // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.

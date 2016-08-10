@@ -56,29 +56,30 @@
         match.baseImgArr = [self addPrefixForStringsOfArray:self.baseImgArr];
         match.matchImgArr = [self addPrefixForStringsOfArray:self.matchImgArr];
         return match;
-    }else if ([type isEqualToString:@"filling"]){
-        NDFillingModel *filling = [[NDFillingModel alloc]init];
-        filling.type = type;
-        if(self.audio.count!=0){
-            NSString *path = self.audio[@"path"];
-            filling.mp3Url = [NSString stringWithFormat:PrefixForUrl,path];
-        }
-        filling.tipLabelText = self.ques;
-        filling.content = self.content;
-        filling.keys = self.keys;
-        return filling;
-    }else if ([type isEqualToString:@"word_matching"]){
-        NDWordModel *word = [[NDWordModel alloc]init];
-        word.type = type;
-        if(self.audio.count!=0){
-            NSString *path = self.audio[@"path"];
-            word.mp3Url = [NSString stringWithFormat:PrefixForUrl,path];
-        }
-        word.tipLabelText = self.ques;
-        word.content = self.content;
-        word.keys = self.keys;
-        return word;
     }
+//    else if ([type isEqualToString:@"filling"]){
+//        NDFillingModel *filling = [[NDFillingModel alloc]init];
+//        filling.type = type;
+//        if(self.audio.count!=0){
+//            NSString *path = self.audio[@"path"];
+//            filling.mp3Url = [NSString stringWithFormat:PrefixForUrl,path];
+//        }
+//        filling.tipLabelText = self.ques;
+//        filling.content = self.content;
+//        filling.keys = self.keys;
+//        return filling;
+//    }else if ([type isEqualToString:@"word_matching"]){
+//        NDWordModel *word = [[NDWordModel alloc]init];
+//        word.type = type;
+//        if(self.audio.count!=0){
+//            NSString *path = self.audio[@"path"];
+//            word.mp3Url = [NSString stringWithFormat:PrefixForUrl,path];
+//        }
+//        word.tipLabelText = self.ques;
+//        word.content = self.content;
+//        word.keys = self.keys;
+//        return word;
+//    }
     return nil;
 }
 - (NSArray *)addPrefixForStringsOfArray:(NSArray *)imageArray

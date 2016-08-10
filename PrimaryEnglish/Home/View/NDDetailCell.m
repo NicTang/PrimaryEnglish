@@ -22,18 +22,19 @@
 
 - (void)awakeFromNib {
     [super awakeFromNib];
-    // Initialization code
 }
 - (void)setModel:(NDDetailModel *)model
 {
     _model = model;
-    NSString *imgStr = [NSString stringWithFormat:@"http://app.ekaola.com/%@",model.cover];
+    NSString *imgStr = [NSString stringWithFormat:PrefixForUrl,model.cover];
     [self.iconView setImageWithURL:[NSURL URLWithString:imgStr]];
     self.unitLabel.text = model.title;
     self.isFreeBtn.contentMode = UIViewContentModeLeft;
     self.isFreeBtn.layer.borderWidth = 1;
     self.isFreeBtn.layer.cornerRadius = 6;
-    self.isFreeBtn.layer.borderColor = Color(109, 255, 110).CGColor;
+    [self.isFreeBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    self.isFreeBtn.layer.borderColor = Color(234, 103, 37).CGColor;
+    self.isFreeBtn.backgroundColor = Color(234, 103, 37);
     self.isFreeBtn.hidden = [model.free doubleValue]==0;
     self.selectionStyle = UITableViewCellSelectionStyleNone;
 }

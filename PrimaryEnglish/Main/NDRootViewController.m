@@ -23,6 +23,10 @@
     [super viewDidLoad];
     [self createViewControllers];
     [self customizeTabBarItem];
+    
+//    NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+//    [dict setObject:@"你好" forKey:@"title"];
+//    [dict writeToFile:NDLearningSavePath atomically:YES];
 }
 
 - (NSArray *)titles

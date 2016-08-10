@@ -12,16 +12,16 @@
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZFs-yt-cML">
-                    <rect key="frame" x="0.0" y="0.0" width="49" height="49"/>
+                    <rect key="frame" x="10" y="0.0" width="49" height="49"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="49" id="aM2-7k-vZv"/>
                     </constraints>
-                    <state key="normal" image="menu.png"/>
+                    <state key="normal" image="menu_bar.png"/>
                     <connections>
                         <action selector="menuBtnClick:" destination="KNy-xI-9tq" eventType="touchUpInside" id="RFa-O9-CS7"/>
                     </connections>
                 </button>
-                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="I4y-S9-Xob">
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="I4y-S9-Xob">
                     <rect key="frame" x="157" y="10" width="60" height="30"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="60" id="ZAa-Nc-TNb"/>
@@ -32,11 +32,11 @@
                     <nil key="highlightedColor"/>
                 </label>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VKQ-Kg-PCk">
-                    <rect key="frame" x="326" y="0.0" width="49" height="49"/>
+                    <rect key="frame" x="316" y="0.0" width="49" height="49"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="49" id="bvA-dk-LEA"/>
                     </constraints>
-                    <state key="normal" image="Share.png"/>
+                    <state key="normal" image="share_bar.png"/>
                     <connections>
                         <action selector="shareBtnClick:" destination="KNy-xI-9tq" eventType="touchUpInside" id="Gzv-Nc-dHl"/>
                     </connections>
@@ -45,10 +45,10 @@
             <color key="backgroundColor" red="0.91764705882352937" green="0.40392156862745099" blue="0.14509803921568626" alpha="1" colorSpace="calibratedRGB"/>
             <constraints>
                 <constraint firstItem="I4y-S9-Xob" firstAttribute="centerX" secondItem="KNy-xI-9tq" secondAttribute="centerX" id="1Tx-7j-dR5"/>
-                <constraint firstItem="ZFs-yt-cML" firstAttribute="leading" secondItem="KNy-xI-9tq" secondAttribute="leading" id="DPu-MS-BP0"/>
+                <constraint firstItem="ZFs-yt-cML" firstAttribute="leading" secondItem="KNy-xI-9tq" secondAttribute="leading" constant="10" id="DPu-MS-BP0"/>
                 <constraint firstItem="ZFs-yt-cML" firstAttribute="top" secondItem="KNy-xI-9tq" secondAttribute="top" id="SfH-xS-wwj"/>
                 <constraint firstItem="I4y-S9-Xob" firstAttribute="centerY" secondItem="KNy-xI-9tq" secondAttribute="centerY" id="ahu-v0-crd"/>
-                <constraint firstAttribute="trailing" secondItem="VKQ-Kg-PCk" secondAttribute="trailing" id="fOd-4X-GoG"/>
+                <constraint firstAttribute="trailing" secondItem="VKQ-Kg-PCk" secondAttribute="trailing" constant="10" id="fOd-4X-GoG"/>
                 <constraint firstItem="VKQ-Kg-PCk" firstAttribute="top" secondItem="KNy-xI-9tq" secondAttribute="top" id="hXp-Q6-1jD"/>
                 <constraint firstAttribute="bottom" secondItem="ZFs-yt-cML" secondAttribute="bottom" id="kKj-KK-WLF"/>
                 <constraint firstAttribute="bottom" secondItem="VKQ-Kg-PCk" secondAttribute="bottom" id="yvc-Sr-xxt"/>
@@ -63,7 +63,7 @@
         </view>
     </objects>
     <resources>
-        <image name="Share.png" width="40" height="46"/>
-        <image name="menu.png" width="49" height="43"/>
+        <image name="menu_bar.png" width="40" height="40"/>
+        <image name="share_bar.png" width="48" height="48"/>
     </resources>
 </document>

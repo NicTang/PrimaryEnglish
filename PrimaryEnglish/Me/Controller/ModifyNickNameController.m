@@ -35,12 +35,11 @@
     CGFloat btnX = 23;
     CGFloat btnY = CGRectGetMaxY(_nickNameText.frame) + 20;
     CGFloat btnW = KScreenWidth - 2*btnX;
-    _saveBtn.frame = CGRectMake(btnX, btnY, btnW, 40);
+    _saveBtn.frame = CGRectMake(btnX, btnY, btnW, 46);
     [_saveBtn setTitle:@"保存" forState:UIControlStateNormal];
     [_saveBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [_saveBtn addTarget:self action:@selector(saveNickName:) forControlEvents:UIControlEventTouchUpInside];
-//    [_saveBtn setBackgroundColor:Color(76, 191, 150)];
-//    [_saveBtn setBackgroundColor:Color(232, 83, 67)];
+    _saveBtn.layer.cornerRadius = 6;
     [_saveBtn setBackgroundColor:Color(234, 103, 37)];
     [self.view addSubview:_saveBtn];
     self.view.backgroundColor = [UIColor clearColor];

@@ -5,16 +5,18 @@
 //  Created by Nic Downey on 16/7/21.
 //  Copyright © 2016年 Nic. All rights reserved.
 //
-//#define HttpUrl @"http://app.ekaola.com"
 #define DataSavePath @"/Users/tangzhaoning/请求数据/%@.plist"
 
 #import "BookReaderController.h"
 #import "AFHTTPSessionManager.h"
 #import "UIImageView+AFNetworking.h"
+#import "RDVTabBarController.h"
 #import "UnitTabBar.h"
 #import "SelectCourseHeader.h"
 #import "NDDetailModel.h"
 #import <AVFoundation/AVFoundation.h>//播放音乐
+#import "UMSocialSnsService.h"//友盟分享
+#import "UMSocialSnsPlatformManager.h"
 
 @interface BookReaderController ()<UnitTabBarDelegate,UITableViewDelegate,UITableViewDataSource,SelectCourseHeaderDelegate,UIScrollViewDelegate>
 
@@ -26,7 +28,7 @@
 @property (nonatomic,strong) UIView *coverView;
 @property (nonatomic,strong) UITableView *tableView;
 @property (nonatomic,assign) NSIndexPath *selectedIndexPath;
-@property (nonatomic,strong) UnitTabBar *tabBar;
+@property (nonatomic,strong) UnitTabBar *unitTabBar;
 
 @property (nonatomic,strong) AVQueuePlayer *mp3Player;
 @property (nonatomic,assign) int currentPage;
@@ -36,13 +38,18 @@
 @end
 
 @implementation BookReaderController
-
+/**
+ *  隐藏底部tabbar
+ */
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    [self.rdv_tabBarController setTabBarHidden:YES animated:YES];
+}
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     [self createUI];
-//    NSString *path = [NSString stringWithFormat:DataSavePath,self.senceid];
-//    NSLog(@"%@",path);
     [self refreshUI];
 //    __weak typeof(self) weakSelf = self;
 //    self.allDataBlock = ^(NSMutableArray *allDataArray){
@@ -82,9 +89,7 @@
 - (void)requestAllDataUntilCompletion:(void (^)(NSMutableArray *dataArray))completion
 {
     for (NDDetailModel *model in self.unitsArray) {
-//        NSMutableArray *dataArr = [NSMutableArray array];
         [self requestDataWithSenceid:model.senceid completion:^(NSDictionary *imageDict,NSDictionary *mp3Dict) {
-//            NSLog(@"dictionary:%ld-%@",imageDict.count,imageDict);
             [self.totalDataArray addObject:imageDict];
             //返回传值
             completion(self.totalDataArray);
@@ -117,9 +122,6 @@
 }
 - (void)refreshUI
 {
-    //获取一个自定义的串行队列（顺序执行）
-//    dispatch_queue_t queue = dispatch_queue_create("queue", NULL);
-    
     //获取全局的并行队列
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     //将任务放在队列中，异步执行，(创建子线程)
@@ -164,10 +166,10 @@
     _scrollView.pagingEnabled = YES;
     [self.view addSubview:_scrollView];
     
-    _tabBar = [UnitTabBar unitTabbar];
-    _tabBar.frame = CGRectMake(0, KScreenHeight-64-49, KScreenWidth, 49);
-    _tabBar.delegate = self;
-    [self.view addSubview:_tabBar];
+    _unitTabBar = [UnitTabBar unitTabbar];
+    _unitTabBar.frame = CGRectMake(0, KScreenHeight-64-49, KScreenWidth, 49);
+    _unitTabBar.delegate = self;
+    [self.view addSubview:_unitTabBar];
 }
 - (void)requestDataWithSenceid:(NSString *)senceid completion:(void (^)(NSDictionary *imageDict,NSDictionary *mp3Dict))completion
 {
@@ -178,7 +180,7 @@
     [manager GET:url parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSArray *rootArray = responseObject;
         //保存请求数据到本地
-        [rootArray writeToFile:[NSString stringWithFormat:DataSavePath,senceid] atomically:YES];
+//        [rootArray writeToFile:[NSString stringWithFormat:DataSavePath,senceid] atomically:YES];
         [self parseDataFromArray:rootArray withSenceid:senceid completion:^(NSDictionary *imgDict, NSDictionary *mp3Dict) {
             //回调传值，将每单元的图片字典回传
             completion(imgDict,mp3Dict);
@@ -240,13 +242,10 @@
                     [mp3Arr addObject:mp3];
                 }
             }
-//            NSLog(@"mp3Array:%ld-%@",mp3Array.count,mp3Array);
         }
         mp3Index++;
         [mp3Dictionary setObject:mp3Arr forKey:@(mp3Index)];
-//        NSLog(@"mp3Dictionary:%@",mp3Dictionary);
         [mp3Array addObject:mp3Dictionary];
-//        NSLog(@"mp3Array:%@",mp3Array);
     }
     //每单元的senceid->imageArray组成一个字典
     [imageDict setObject:imageArray forKey:senceid];
@@ -271,7 +270,12 @@
 }
 - (void)tabBarItemClickToShareInfo:(UnitTabBar *)tabBar
 {
-    NSLog(@"tabBarItemClickToShareInfo");
+    [UMSocialData defaultData].extConfig.wechatSessionData.url = @"http://baidu.com";
+    [UMSocialData defaultData].extConfig.wechatTimelineData.url = @"http://baidu.com";
+    [UMSocialData defaultData].extConfig.wechatSessionData.title = @"微信好友title";
+    [UMSocialData defaultData].extConfig.wechatTimelineData.title = @"微信朋友圈title";
+    //分享png、jpg图片
+    [UMSocialSnsService presentSnsIconSheetView:self appKey:KUMengAppKeyString shareText:@"你好" shareImage:[UIImage imageNamed:@"placeholderImage"] shareToSnsNames:@[UMShareToSina,UMShareToWechatSession,UMShareToWechatTimeline] delegate:nil];
 }
 #pragma mark - SelectCourseHeaderDelegate代理方法
 - (void)selectCourseCancel:(SelectCourseHeader *)header
@@ -317,6 +321,10 @@
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    NDDetailModel *model = self.unitsArray[indexPath.row];
+    if (self.learningReaderBlock) {
+        self.learningReaderBlock(model,self.courseName,indexPath.row,self.unitsArray,self.courseID);
+    };
     UITableViewCell *lastCell = [tableView cellForRowAtIndexPath:self.selectedIndexPath];
     [lastCell.textLabel setTextColor:[UIColor blackColor]];
     //更新
@@ -324,19 +332,17 @@
     UITableViewCell *SelectCell = [tableView cellForRowAtIndexPath:indexPath];
     [SelectCell.textLabel setTextColor:[UIColor redColor]];
     
-    NDDetailModel *model = self.unitsArray[indexPath.row];
+//    NDDetailModel *model = self.unitsArray[indexPath.row];
     NSString *senceid = model.senceid;
     self.title = model.title;
-    NSLog(@"self.senceid:%@-senceid:%@",self.senceid,senceid);
     
     self.mp3Player = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     self.senceid = senceid;
     
     [self requestDataWithSenceid:senceid completion:^(NSDictionary *imageDict, NSDictionary *mp3Dict) {
-        NSLog(@"imageDict:%@,mp3Dict:%@",imageDict,mp3Dict);
+//        NSLog(@"imageDict:%@,mp3Dict:%@",imageDict,mp3Dict);
         [self showImageWithDict:imageDict play:mp3Dict senceid:senceid handler:^{
-            
             self.currentPage = 1;
             self.scrollView.contentOffset = CGPointMake(0, 0);
             [self playMp3AtBeginWithSenceid:senceid];
@@ -387,7 +393,7 @@
         }
     }
     NSLog(@"当前是第%d张图片！",index);
-    NSLog(@"一共 %ld 句话：%@",self.mp3Array.count,self.mp3Array);
+//    NSLog(@"一共 %ld 句话：%@",self.mp3Array.count,self.mp3Array);
 }
 - (void)initMp3Player
 {
@@ -410,6 +416,5 @@
 {
     self.mp3Player = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-//    NSLog(@"dealloc: removeObserver--self");
 }
 @end

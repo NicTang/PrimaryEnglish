@@ -38,17 +38,25 @@
 //修改头像
 #define KModifyIconUrl @"http://app.ekaola.com/app/upload_head_image"
 
-
+//友盟
+#define KUMengAppKeyString @"57aab01ae0f55ac6e10010d0"
+//微信
 #define KWeChatAppIDString @"wx7c6ce7f7f9211fc5"
-#define KWeChatAppSecretString @"5c3046d4dbeda1fe6fa2f3603b85a1cf"
+#define KWeChatAppSecretString @"56b3ba4b706f6747d1bb97dd2acbb4e0"
+//新浪微博
+#define KSinaAppIDString @"4115061949"
+#define KSinaAppSecretString @"e073fcaa36cba8b6ce54edc4537aa25e"
 
 //声音图片URL拼接
-//#define HttpUrl @"http://app.ekaola.com"
 #define PrefixForUrl @"http://app.ekaola.com/%@"
 
 #import "NDLoginController.h"
 //用户模型存储路径
 #define NDModelSavePath [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:@"user.txt"]
+//首页正在学数据存储路径
+#define NDLearningSavePath [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:@"learning.plist"]
+#define NDUnitsSavePath [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:@"units.plist"]
+
 #endif /* Main_pch */
 
 
