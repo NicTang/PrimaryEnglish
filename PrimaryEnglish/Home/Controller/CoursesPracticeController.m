@@ -16,7 +16,7 @@
 #define NextBtnH 40*ScaleValue
 
 #define MatchPaddingX 3*Padding
-#define MatchPaddingY 10*ScaleValue
+#define MatchPaddingY 16*ScaleValue
 
 #define BaseImgW (KScreenWidth-3*MatchPaddingX)*7/13
 #define BaseImgH BaseImgW*255/300
@@ -45,12 +45,22 @@
 }
 @property (nonatomic,strong) NSMutableDictionary *cardDict;
 @property (nonatomic,strong) NSMutableArray *exerciseArray;
-//@property (nonatomic,strong) NSArray *matchingArray;
 @property (nonatomic,assign) NSInteger tapCount;
 @property (nonatomic,assign) NSInteger currentPage;
 
 @property (nonatomic,strong) UIView *selectedView;
 
+//拖拽连线
+@property (nonatomic,strong) NSMutableArray *baseFrameArray;
+@property (nonatomic,strong) NSMutableArray *matchFrameArray;
+
+@property (nonatomic,strong) NSMutableArray *baseImgArray;
+@property (nonatomic,strong) NSMutableArray *matchImgArray;
+@property (nonatomic,strong) NSMutableDictionary *matchLineDict;
+
+@property (nonatomic,strong) NSMutableArray *baseIsEmptyIndexes;
+@property (nonatomic,strong) NSMutableArray *matchTransIndexes;
+@property (nonatomic,strong) UIButton *nextButton;//下一题
 @end
 
 @implementation CoursesPracticeController
@@ -90,13 +100,55 @@
     }
     return _exerciseArray;
 }
-//- (NSArray *)matchingArray
-//{
-//    if (!_matchingArray) {
-//        _matchingArray = [NSArray array];
-//    }
-//    return _matchingArray;
-//}
+- (NSMutableArray *)baseFrameArray
+{
+    if (!_baseFrameArray) {
+        _baseFrameArray = [NSMutableArray array];
+    }
+    return _baseFrameArray;
+}
+- (NSMutableArray *)matchFrameArray
+{
+    if (!_matchFrameArray) {
+        _matchFrameArray = [NSMutableArray array];
+    }
+    return _matchFrameArray;
+}
+- (NSMutableArray *)baseImgArray
+{
+    if (!_baseImgArray) {
+        _baseImgArray = [NSMutableArray array];
+    }
+    return _baseImgArray;
+}
+- (NSMutableArray *)matchImgArray
+{
+    if (!_matchImgArray) {
+        _matchImgArray = [NSMutableArray array];
+    }
+    return _matchImgArray;
+}
+- (NSMutableDictionary *)matchLineDict
+{
+    if (!_matchLineDict) {
+        _matchLineDict = [NSMutableDictionary dictionary];
+    }
+    return _matchLineDict;
+}
+- (NSMutableArray *)baseIsEmptyIndexes
+{
+    if (!_baseIsEmptyIndexes) {
+        _baseIsEmptyIndexes = [NSMutableArray array];
+    }
+    return _baseIsEmptyIndexes;
+}
+- (NSMutableArray *)matchTransIndexes
+{
+    if (!_matchTransIndexes) {
+        _matchTransIndexes = [NSMutableArray array];
+    }
+    return _matchTransIndexes;
+}
 - (void)createUI
 {
     _scrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, 0, KScreenWidth, KScreenHeight-64)];
@@ -230,25 +282,42 @@
         CGFloat chooseY = CGRectGetMaxY(tipLabel.frame) + Padding;
         for (int m = 0; m<match.baseImgArr.count; m++) {
             UIImageView *baseImageView = [[UIImageView alloc]initWithFrame:CGRectMake(MatchPaddingX, chooseY+m*(BaseImgH+MatchPaddingY), BaseImgW, BaseImgH)];
-            baseImageView.layer.borderWidth = 3;
+            [self addShadowForView:baseImageView withColor:Color(168, 168, 168)];
             NSURL *baseImgUrl = [NSURL URLWithString:match.baseImgArr[m]];
             [baseImageView setImageWithURL:baseImgUrl];
             [view addSubview:baseImageView];
             
+            [self.baseImgArray addObject:baseImageView];
+            [self.baseIsEmptyIndexes addObject:@(1)];
+            [self.baseFrameArray addObject:[NSValue valueWithCGRect:baseImageView.frame]];
+        }
+        for (int n = 0; n<match.matchImgArr.count; n++) {
             UIView *matchView = [[UIView alloc]init];
             matchView.backgroundColor = [UIColor whiteColor];
             matchView.bounds = CGRectMake(0, 0, MatchImgW, MatchImgH);
-            CGFloat centerX = baseImageView.center.x + (BaseImgW+MatchImgW)/2 + MatchPaddingX;
-            matchView.center = CGPointMake(centerX, baseImageView.center.y);
-            matchView.layer.borderWidth = 3;
-            matchView.layer.shadowColor = Color(234, 103, 37).CGColor;
-            UIImageView *matchImageView = [[UIImageView alloc]initWithFrame:matchView.bounds];
-            NSURL *matchImgUrl = [NSURL URLWithString:match.matchImgArr[m]];
-            [matchImageView setImageWithURL:matchImgUrl];
-            [matchView addSubview:matchImageView];
+            CGRect baseFrame = [self.baseFrameArray[n] CGRectValue];
+            CGFloat baseCenterX = baseFrame.origin.x + baseFrame.size.width/2;
+            CGFloat baseCenterY = baseFrame.origin.y + baseFrame.size.height/2;
+            CGFloat centerX = baseCenterX + (BaseImgW+MatchImgW)/2 + MatchPaddingX;
+            matchView.center = CGPointMake(centerX, baseCenterY);
+            
+            [self.matchFrameArray addObject:[NSValue valueWithCGRect:matchView.frame]];
+            [self addShadowForView:matchView withColor:Color(168, 168, 168)];
             [view addSubview:matchView];
+            
+            UIImageView *matchImageView = [[UIImageView alloc]initWithFrame:matchView.frame];
+            matchImageView.tag = n;
+            NSURL *matchImgUrl = [NSURL URLWithString:match.matchImgArr[n]];
+            [matchImageView setImageWithURL:matchImgUrl];
+            [self.matchImgArray addObject:matchImageView];
+            [self.matchTransIndexes addObject:@(0)];
+            
+            matchImageView.userInteractionEnabled = YES;
+            UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc]initWithTarget:self action:@selector(panViewToMatchOtherView:)];
+            pan.maximumNumberOfTouches = 1;
+            [matchImageView addGestureRecognizer:pan];
+            [view addSubview:matchImageView];
         }
-        
     }
 //    else if ([type isEqualToString:@"filling"]){
 ////        NDFillingModel *filling = modelDict[type];
@@ -265,10 +334,174 @@
     [nextBtn setTitle:titleStr forState:UIControlStateNormal];
     [nextBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [nextBtn addTarget:self action:@selector(nextViewForExercise:) forControlEvents:UIControlEventTouchUpInside];
-    [nextBtn setBackgroundColor:Color(234, 103, 37)];
+    [nextBtn setBackgroundColor:Color(168, 168, 168)];
     nextBtn.layer.cornerRadius = 5;
+    nextBtn.enabled = NO;
     [view addSubview:nextBtn];
+    self.nextButton = nextBtn;
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(observingIsChooseOver:) name:@"matchLineDict" object:nil];
     return view;
+}
+- (void)panViewToMatchOtherView:(UIPanGestureRecognizer *)panGesture
+{
+    NSInteger index = panGesture.view.tag;
+    
+    [panGesture.view.superview bringSubviewToFront:panGesture.view];
+    CGPoint panPoint = [panGesture locationInView:self.view];
+    panGesture.view.center = panPoint;
+    if (panGesture.state==UIGestureRecognizerStateEnded) {
+        NSInteger count = self.baseFrameArray.count;
+        self.nextButton.tag = count;
+        for (int i = 0;i<count;i++) {
+            CGRect baseFrame = [self.baseFrameArray[i] CGRectValue];
+            if (CGRectContainsPoint(baseFrame, panPoint)) {
+                UIImageView *imgView = self.baseImgArray[i];
+                [self addShadowForView:imgView withColor:Color(168, 168, 168)];
+                //左边i位置imgView上为空
+                if ([self.baseIsEmptyIndexes[i] integerValue]==1) {
+                    //拖动的imgView已经发生形变
+                    if ([self.matchTransIndexes[index] integerValue]==1) {
+                        //拿到左边之前连线的imgView，恢复原状
+                        NSInteger imgIndex = [[self.matchLineDict objectForKey:@(index)] integerValue];
+                        UIImageView *lineImgView = self.baseImgArray[imgIndex];
+                        lineImgView.frame = [self.baseFrameArray[imgIndex] CGRectValue];
+                        [self addAnimationForView:lineImgView withScaleX:1 scaleY:1 rotate:0];
+                        self.baseIsEmptyIndexes[imgIndex] = @(1);
+                        [self.matchLineDict removeObjectForKey:@(index)];
+                    }
+                    [self addAnimationForView:imgView withScaleX:0.7 scaleY:0.7 rotate:-M_PI/6];
+                    panGesture.view.frame = [self getNewFrameForView:panGesture.view ByFrame:baseFrame];
+                    [self addAnimationForView:panGesture.view withScaleX:0.7 scaleY:0.7 rotate:M_PI/6];
+                    self.baseIsEmptyIndexes[i] = @(0);
+                    self.matchTransIndexes[index] = @(1);
+                    [self.matchLineDict setObject:@(i) forKey:@(index)];
+                }else if ([self.baseIsEmptyIndexes[i] integerValue]==0){//左边的imgView上有图片拖过来
+                    //拖动的imgView已经发生形变
+                    if ([self.matchTransIndexes[index] integerValue]==1){
+                        //在原地拖动
+                        if ([[self.matchLineDict objectForKey:@(index)] isEqual:@(i)]) {
+                            panGesture.view.frame = [self getNewFrameForView:panGesture.view ByFrame:baseFrame];
+                            [self addAnimationForView:panGesture.view withScaleX:0.7 scaleY:0.7 rotate:M_PI/6];
+                            self.matchTransIndexes[index]=@(1);
+                            self.baseIsEmptyIndexes[i]=@(0);
+                        }else
+                        {//两个imgView上都有图片，交换位置
+                            //跟当前view连线的左边imgView下标
+                            NSInteger lineIndex = [[self.matchLineDict objectForKey:@(index)] integerValue];
+                            //通过matchLineDict找到i位置所对应的key值，即从右边拖来已形变view的下标
+                            NSInteger changeIndex = -1;
+                            for (NSNumber *number in self.matchLineDict.allKeys) {
+                                if ([self.matchLineDict[number] isEqualToValue:@(i)]) {
+                                    changeIndex = [number integerValue];
+                                    break;
+                                }
+                            }
+                            if (changeIndex!=-1) {
+                                [self.matchLineDict removeObjectForKey:@(changeIndex)];
+                                UIImageView *matchImgView = self.matchImgArray[changeIndex];
+                                matchImgView.frame = [self getNewFrameForView:matchImgView ByFrame:[self.baseFrameArray[lineIndex] CGRectValue]];
+                                [self addAnimationForView:matchImgView withScaleX:0.7 scaleY:0.7 rotate:M_PI/6];
+                                [self.matchLineDict setObject:@(lineIndex) forKey:@(changeIndex)];
+                                self.matchTransIndexes[changeIndex]=@(1);
+                                self.baseIsEmptyIndexes[i]=@(0);
+                            }
+                            panGesture.view.frame = [self getNewFrameForView:panGesture.view ByFrame:baseFrame];
+                            [self addAnimationForView:panGesture.view withScaleX:0.7 scaleY:0.7 rotate:M_PI/6];
+                            //移除连线
+                            [self.matchLineDict removeObjectForKey:@(index)];
+                            [self.matchLineDict setObject:@(i) forKey:@(index)];
+                            self.matchTransIndexes[index]=@(1);
+                            self.baseIsEmptyIndexes[lineIndex]=@(0);
+                        }
+                    }else
+                    {
+                        CGRect frame = [self.matchFrameArray[index] CGRectValue];
+                        panGesture.view.frame = frame;
+                        self.matchTransIndexes[index]=@(0);
+                    }
+                }
+                break;
+            }else
+            {
+                CGRect frame = [self.matchFrameArray[index] CGRectValue];
+                panGesture.view.frame = frame;
+                //拖动view已经形变
+                if ([self.matchTransIndexes[index] integerValue]==1) {
+                    //拿到左边之前连线的imgView，恢复原状
+                    NSInteger imgIndex = [[self.matchLineDict objectForKey:@(index)] integerValue];
+                    UIImageView *lineImgView = self.baseImgArray[imgIndex];
+                    lineImgView.frame = [self.baseFrameArray[imgIndex] CGRectValue];
+                    [self addAnimationForView:lineImgView withScaleX:1 scaleY:1 rotate:0];
+                    self.baseIsEmptyIndexes[imgIndex] = @(1);
+                    [self.matchLineDict removeObjectForKey:@(index)];
+                    
+                    self.matchTransIndexes[index] = @(0);
+                    
+                    [self addAnimationForView:panGesture.view withScaleX:1 scaleY:1 rotate:0];
+                }
+            }
+        }
+        [[NSNotificationCenter defaultCenter]postNotificationName:@"matchLineDict" object:nil userInfo:@{@"matchLineDict":self.matchLineDict}];
+    }else if (panGesture.state==UIGestureRecognizerStateChanged){
+        NSInteger count = self.baseFrameArray.count;
+        for (int i = 0;i<count;i++) {
+            UIImageView *imgView = self.baseImgArray[i];
+            CGRect baseFrame = [self.baseFrameArray[i] CGRectValue];
+            if (CGRectContainsPoint(baseFrame, panPoint)) {
+                [self addShadowForView:imgView withColor:[UIColor redColor]];
+                break;
+            }else
+            {
+                [self addShadowForView:imgView withColor:Color(168, 168, 168)];
+            }
+        }
+    }
+}
+- (void)observingIsChooseOver:(NSNotification *)notify
+{
+    NSDictionary *dict = notify.userInfo[@"matchLineDict"];
+    NSInteger count = dict.count;
+    if (count==self.nextButton.tag) {
+        self.nextButton.enabled = YES;
+        [self.nextButton setBackgroundColor:Color(234, 103, 37)];
+    } else {
+        self.nextButton.enabled = NO;
+        [self.nextButton setBackgroundColor:Color(168, 168, 168)];
+    }
+}
+- (void)addShadowForView:(UIView *)view withColor:(UIColor *)shadowColor
+{
+    view.layer.shadowColor = shadowColor.CGColor;
+    view.layer.shadowOffset = CGSizeMake(0,0);//shadowOffset阴影偏移,x向右偏移4，y向下偏移4，默认(0, -3),这个跟shadowRadius配合使用
+    view.layer.shadowOpacity = 0.6;//阴影透明度，默认0
+    view.layer.shadowRadius = 2;//阴影半径，默认3
+}
+- (CGRect)getNewFrameForView:(UIView *)view ByFrame:(CGRect)frame
+{
+    CGSize viewSize = view.frame.size;
+    CGFloat viewX = frame.origin.x + frame.size.width/2;
+    CGFloat viewY = CGRectGetMaxY(frame) - viewSize.height;
+    return CGRectMake(viewX, viewY, viewSize.width, viewSize.height);
+}
+
+- (void)addAnimationForView:(UIView *)view withScaleX:(CGFloat)scaleX scaleY:(CGFloat)scaleY rotate:(CGFloat)angle
+{
+    CABasicAnimation *basic1 = [CABasicAnimation animationWithKeyPath:@"transform.scale.x"];
+    basic1.toValue = @(scaleX);
+    
+    CABasicAnimation *basic2 = [CABasicAnimation animationWithKeyPath:@"transform.scale.y"];
+    basic2.toValue = @(scaleY);
+    
+    CABasicAnimation *basic3 = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
+    basic3.toValue = @(angle);
+    
+    //创建组动画
+    CAAnimationGroup *group = [CAAnimationGroup animation];
+    group.animations = @[basic1,basic2,basic3];
+    group.duration = 1;
+    group.removedOnCompletion = NO;
+    group.fillMode = kCAFillModeForwards;
+    [view.layer addAnimation:group forKey:nil];
 }
 - (void)tapToSelectView:(UITapGestureRecognizer *)tapGesture
 {
