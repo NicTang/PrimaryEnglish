@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="10117" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
     <dependencies>
-        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
     </dependencies>
     <objects>
@@ -15,25 +14,33 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="VJO-p6-7mt">
-                        <rect key="frame" x="10" y="16" width="160" height="67"/>
+                        <rect key="frame" x="10" y="13" width="160" height="73"/>
                         <constraints>
                             <constraint firstAttribute="width" constant="160" id="rfk-Mj-TgH"/>
                         </constraints>
                     </imageView>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QHh-0V-sMp">
-                        <rect key="frame" x="190" y="20" width="100" height="16"/>
+                        <rect key="frame" x="186" y="15" width="128" height="16"/>
                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fyc-Bz-nND">
-                        <rect key="frame" x="190" y="53" width="60" height="30"/>
+                        <rect key="frame" x="186" y="59" width="72" height="27"/>
                         <constraints>
-                            <constraint firstAttribute="height" constant="30" id="YCd-Bm-bRB"/>
+                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="66" id="W4Q-hA-T7v"/>
+                            <constraint firstAttribute="height" constant="27" id="YCd-Bm-bRB"/>
+                            <constraint firstAttribute="width" constant="72" id="e8L-se-Pjh"/>
                             <constraint firstAttribute="width" constant="60" id="zCM-HM-ne4"/>
                         </constraints>
                         <fontDescription key="fontDescription" type="boldSystem" pointSize="13"/>
                         <state key="normal" title="免费试学"/>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="W4Q-hA-T7v"/>
+                                <exclude reference="zCM-HM-ne4"/>
+                            </mask>
+                        </variation>
                         <connections>
                             <action selector="freeBtnClick:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="VUg-ix-JaI"/>
                         </connections>
@@ -42,25 +49,31 @@
                 <constraints>
                     <constraint firstItem="VJO-p6-7mt" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="10" id="5Un-9f-SdU"/>
                     <constraint firstItem="fyc-Bz-nND" firstAttribute="leading" secondItem="QHh-0V-sMp" secondAttribute="leading" id="6vC-da-nSC"/>
-                    <constraint firstItem="VJO-p6-7mt" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="16" id="9Fx-wI-lbK"/>
+                    <constraint firstItem="VJO-p6-7mt" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="13" id="9Fx-wI-lbK"/>
+                    <constraint firstItem="fyc-Bz-nND" firstAttribute="bottom" secondItem="VJO-p6-7mt" secondAttribute="bottom" id="BnD-hU-NVy"/>
                     <constraint firstItem="QHh-0V-sMp" firstAttribute="leading" secondItem="VJO-p6-7mt" secondAttribute="trailing" constant="10" id="HP0-po-oXv"/>
                     <constraint firstItem="fyc-Bz-nND" firstAttribute="top" secondItem="QHh-0V-sMp" secondAttribute="bottom" constant="20" id="NJH-Hr-KyB"/>
-                    <constraint firstItem="QHh-0V-sMp" firstAttribute="leading" secondItem="VJO-p6-7mt" secondAttribute="trailing" constant="20" id="OCg-Pd-ycs"/>
-                    <constraint firstItem="QHh-0V-sMp" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="20" id="VST-24-W7b"/>
+                    <constraint firstItem="QHh-0V-sMp" firstAttribute="leading" secondItem="VJO-p6-7mt" secondAttribute="trailing" constant="16" id="OCg-Pd-ycs"/>
+                    <constraint firstAttribute="trailing" secondItem="QHh-0V-sMp" secondAttribute="trailing" constant="6" id="UjN-gn-Vzy"/>
+                    <constraint firstItem="QHh-0V-sMp" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="15" id="VST-24-W7b"/>
                     <constraint firstAttribute="trailing" secondItem="QHh-0V-sMp" secondAttribute="trailing" constant="30" id="VVH-GR-Iwu"/>
                     <constraint firstAttribute="bottom" secondItem="fyc-Bz-nND" secondAttribute="bottom" constant="16" id="ZOR-Ef-sxQ"/>
                     <constraint firstAttribute="trailing" secondItem="fyc-Bz-nND" secondAttribute="trailing" constant="100" id="eL8-3f-6mV"/>
                     <constraint firstItem="fyc-Bz-nND" firstAttribute="leading" secondItem="VJO-p6-7mt" secondAttribute="trailing" constant="20" id="jof-q1-DhJ"/>
                     <constraint firstItem="fyc-Bz-nND" firstAttribute="leading" secondItem="VJO-p6-7mt" secondAttribute="trailing" constant="10" id="k4L-ws-Bqt"/>
-                    <constraint firstAttribute="bottom" secondItem="VJO-p6-7mt" secondAttribute="bottom" constant="16" id="sAD-kX-tgf"/>
+                    <constraint firstAttribute="bottom" secondItem="VJO-p6-7mt" secondAttribute="bottom" constant="13" id="sAD-kX-tgf"/>
+                    <constraint firstAttribute="trailing" secondItem="fyc-Bz-nND" secondAttribute="trailing" constant="56" id="wcf-OQ-lcH"/>
                 </constraints>
                 <variation key="default">
                     <mask key="constraints">
                         <exclude reference="HP0-po-oXv"/>
+                        <exclude reference="VVH-GR-Iwu"/>
                         <exclude reference="NJH-Hr-KyB"/>
+                        <exclude reference="ZOR-Ef-sxQ"/>
                         <exclude reference="eL8-3f-6mV"/>
                         <exclude reference="jof-q1-DhJ"/>
                         <exclude reference="k4L-ws-Bqt"/>
+                        <exclude reference="wcf-OQ-lcH"/>
                     </mask>
                 </variation>
             </tableViewCellContentView>

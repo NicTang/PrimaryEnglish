@@ -19,7 +19,6 @@
 {
     NSData *data = [aDecoder decodeObjectForKey:NDModelImageKey];
     self.image = [UIImage imageWithData:data];
-//    self.image = [aDecoder decodeObjectForKey:NDModelImageKey];
     self.phone = [aDecoder decodeObjectForKey:NDModelPhoneKey];
     self.nickName = [aDecoder decodeObjectForKey:NDModelNickNameKey];
     self.code = [aDecoder decodeObjectForKey:NDModelCodeKey];
@@ -30,7 +29,6 @@
 {
     NSData *data = UIImagePNGRepresentation(self.image);
     [aCoder encodeObject:data forKey:NDModelImageKey];
-//    [aCoder encodeObject:self.image forKey:NDModelImageKey];
     [aCoder encodeObject:self.phone forKey:NDModelPhoneKey];
     [aCoder encodeObject:self.nickName forKey:NDModelNickNameKey];
     [aCoder encodeObject:self.code forKey:NDModelCodeKey];

@@ -31,7 +31,6 @@
     [super viewDidLoad];
     [self prepareData];
     [self createUI];
-//    NSLog(@"%@",NDModelSavePath);
 }
 - (UserModel *)model
 {
@@ -59,12 +58,9 @@
 - (void)createUI
 {
     self.view.backgroundColor = [UIColor whiteColor];
-    [self.navigationController.navigationBar setBackgroundImage:[UIImage createImageWithColor:Color(234, 103, 37)] forBarMetrics:UIBarMetricsDefault];
-    [self.navigationController.navigationBar setShadowImage:[UIImage createImageWithColor:[UIColor clearColor]]];
-    
     _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, KScreenWidth, KScreenHeight) style:UITableViewStyleGrouped];
     _tableView.scrollEnabled = NO;
-    _tableView.contentInset = UIEdgeInsetsMake(-17, 0, 0, 0);
+    _tableView.contentInset = UIEdgeInsetsMake(-17*ScaleValueY, 0, 30*ScaleValueY, 0);
     
     _tableView.dataSource = self;
     _tableView.delegate = self;
@@ -110,25 +106,37 @@
         login.userLoginBlock = ^(UserModel *loginModel){
             self.model = loginModel;
             [self.tableView reloadData];
-//            NSLog(@"%@-%@-%@-%@-%ld",self.model.image,self.model.phone,self.model.nickName,self.model.code,(long)self.model.status);
             // 存储数据
             [NSKeyedArchiver archiveRootObject:self.model toFile:NDModelSavePath];
         };
         [self presentViewController:login animated:YES completion:nil];
     }else
     {
-        if (indexPath.section==0&&indexPath.row==0) {
-            NDMeInfoController *meInfoVc = [[NDMeInfoController alloc]init];
-            meInfoVc.user = self.model;
-            meInfoVc.title = @"我的信息";
-            meInfoVc.showUserBlock = ^(UserModel *model){
-                self.model = model;
-                [self.tableView reloadData];
-                // 存储数据
-//                NSLog(@"%@-%@-%@-%@-%ld",self.model.image,self.model.phone,self.model.nickName,self.model.code,(long)self.model.status);
-                [NSKeyedArchiver archiveRootObject:self.model toFile:NDModelSavePath];
-            };
-            [self.navigationController pushViewController:meInfoVc animated:YES];
+        if (indexPath.section==0) {
+            if (indexPath.row==0) {
+                NDMeInfoController *meInfoVc = [[NDMeInfoController alloc]init];
+                meInfoVc.user = self.model;
+                meInfoVc.title = @"我的信息";
+                meInfoVc.showUserBlock = ^(UserModel *model){
+                    self.model = model;
+                    [self.tableView reloadData];
+                    // 存储数据
+                    [NSKeyedArchiver archiveRootObject:self.model toFile:NDModelSavePath];
+                };
+                [self.navigationController pushViewController:meInfoVc animated:YES];
+            }else if (indexPath.row==1){
+                UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"已下载课程提示信息" message:@"暂时还不支持离线，后续版本可能会加入该功能，敬请期待！" preferredStyle:UIAlertControllerStyleAlert];
+                [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                    [self dismissViewControllerAnimated:alert completion:nil];
+                }]];
+                [self presentViewController:alert animated:YES completion:nil];
+            }else if (indexPath.row==2){
+                UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"已购课程提示信息" message:@"暂无购买，本阶段所有课程免费试学，赶快来体验吧😊！" preferredStyle:UIAlertControllerStyleAlert];
+                [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                    [self dismissViewControllerAnimated:alert completion:nil];
+                }]];
+                [self presentViewController:alert animated:YES completion:nil];
+            }
         }else if (indexPath.section==1)
         {
             NDSettingController *settingVc = [[NDSettingController alloc]init];
@@ -142,21 +150,28 @@
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (indexPath.section==0&&indexPath.row==0) {
-        return 160;
+        return 160*ScaleValueX;
     }
-    return 60;
+    return 60*ScaleValueX;
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
-    return 16;
+    return 16*ScaleValueY;
 }
 #pragma mark - SettingControllerDelegate代理方法
 - (void)settingController:(NDSettingController *)vc logout:(int)status
 {
     self.model.status = status;
     [NSKeyedArchiver archiveRootObject:self.model toFile:NDModelSavePath];
-    self.model.image = [UIImage imageNamed:@"placeholderImage"];
+//    self.model.image = [UIImage imageNamed:@"placeholderImage"];
     self.model.nickName = @"未登录";
     [self.tableView reloadData];
+}
+#pragma mark - 控制器销毁时释放内存
+- (void)dealloc
+{
+    [self.tableView removeFromSuperview];
+    self.iconArray = nil;
+    self.nameArray = nil;
 }
 @end

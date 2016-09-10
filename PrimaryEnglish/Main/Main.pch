@@ -19,6 +19,9 @@
 #define KScreenHeight [UIScreen mainScreen].bounds.size.height
 
 #define Color(r,g,b) [UIColor colorWithRed:(r)/255.0 green:(g)/255.0 blue:(b)/255.0 alpha:1.0]
+//屏幕比例系数
+#define ScaleValueX KScreenWidth/375.0
+#define ScaleValueY KScreenHeight/667.0
 
 //首页信息
 #define KHomeUrlString @"http://app.ekaola.com/app/home"

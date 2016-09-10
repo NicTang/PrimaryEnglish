@@ -6,10 +6,15 @@
 //  Copyright © 2016年 Nic. All rights reserved.
 //
 
-#define learningViewH 200
-#define learningLabelH 40
-#define headerDefaultH 40
-#define headerLearningH 240
+#define learningViewH 200*ScaleValueY
+#define learningLabelH 40*ScaleValueY
+#define headerDefaultH 40*ScaleValueY
+#define headerLearningH 240*ScaleValueY
+
+#define LineSpacing 20*ScaleValueY
+#define ItemSpacing 20*ScaleValueX
+#define ItemWidth (KScreenWidth - 4*ItemSpacing)/3
+#define ItemHeight 169*ItemWidth/100
 
 #import "NDHomeController.h"
 #import "NDHomeModel.h"
@@ -25,7 +30,6 @@
 
 @interface NDHomeController ()<UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout>
 
-@property (nonatomic,strong) UIScrollView *scrollView;
 @property (nonatomic,strong) UICollectionView *collectionView;
 @property (nonatomic,strong) NSMutableArray *dataArray;
 
@@ -69,7 +73,6 @@
     NSString *senceid = [defaults stringForKey:@"senceid"];
     if (_learningCourse==nil) {
         if (imageStr!=nil&&unitStr!=nil) {
-            NSLog(@"learningCourse:imageStr:%@-unitStr:%@",imageStr,unitStr);
             NDDetailModel *model = [[NDDetailModel alloc]init];
             model.cover = imageStr;
             model.title = unitStr;
@@ -89,10 +92,10 @@
 - (void)createUI
 {
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc]init];
-    layout.minimumLineSpacing = 20;
-    layout.minimumInteritemSpacing = 20;
-    layout.itemSize = CGSizeMake(100, 169);
-    layout.sectionInset = UIEdgeInsetsMake(0, 17, 60, 17);
+    layout.minimumLineSpacing = LineSpacing;
+    layout.minimumInteritemSpacing = ItemSpacing;
+    layout.itemSize = CGSizeMake(ItemWidth, ItemHeight);
+    layout.sectionInset = UIEdgeInsetsMake(0, 17*ScaleValueX, 60*ScaleValueY, 17*ScaleValueX);
     layout.scrollDirection = UICollectionViewScrollDirectionVertical;
     
     _collectionView = [[UICollectionView alloc]initWithFrame:CGRectMake(0, 0, KScreenWidth, KScreenHeight-64) collectionViewLayout:layout];
@@ -119,7 +122,11 @@
         [self.collectionView reloadData];
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (error) {
-            NSLog(@"error :%@",error.localizedDescription);
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"网络请求失败提示信息" message:error.localizedDescription preferredStyle:UIAlertControllerStyleAlert];
+            [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                [self dismissViewControllerAnimated:alert completion:nil];
+            }]];
+            [self presentViewController:alert animated:YES completion:nil];
         }
     }];
 }
@@ -146,13 +153,11 @@
         UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(tapToDetailUI:)];
         [textView addGestureRecognizer:tap];
         
-//        NSLog(@"self.learningCourse:%@",self.learningCourse);
-        
         if (self.learningCourse!=nil) {
             //创建view
             textView.model = self.learningCourse;
             //修改frame
-            textView.recommendLabel.frame = CGRectMake(20, learningViewH, KScreenWidth, learningLabelH);
+            textView.recommendLabel.frame = CGRectMake(20*ScaleValueX, learningViewH, KScreenWidth, learningLabelH);
             //可交互
             textView.userInteractionEnabled = YES;
         }
@@ -188,10 +193,8 @@
             readerVc.title = self.learningCourse.title;
             readerVc.courseID = self.learningCourseID;
             readerVc.courseName = self.learningTitle;
-//            readerVc.navigationController.navigationBar.translucent = YES;
             readerVc.learningReaderBlock = ^(NDDetailModel *model,NSString *title,NSInteger selectIndex,NSArray *unitsArray,NSString *courseID){
                 [self saveLearningDataWithModel:model title:title selectIndex:selectIndex unitsArray:unitsArray courseID:courseID];
-//                NSLog(@"点了课本点读的第%ld单元，有点tableView-%@--self.learningCourse:%@",selectIndex,title,self.learningCourse);
             };
             [self.navigationController pushViewController:readerVc animated:YES];
         }
@@ -209,13 +212,12 @@
 }
 #pragma mark - UICollectionView代理方法UICollectionViewDelegate
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
-{
+{    
     NDHomeModel *model = self.dataArray[indexPath.item];
     NDDetailController *detailVc= [[NDDetailController alloc]init];
     detailVc.courseID = model.homeID;
     detailVc.title = model.name;
     detailVc.learningDetailBlock = ^(NDDetailModel *model,NSString *title,NSInteger selectIndex,NSArray *unitsArray,NSString *courseID){
-        NSLog(@"点了课本点读的第%ld单元，没有点tableview-%@",selectIndex,title);
         [self saveLearningDataWithModel:model title:title selectIndex:selectIndex unitsArray:unitsArray courseID:courseID];
     };
     [self.navigationController pushViewController:detailVc animated:YES];
@@ -244,7 +246,6 @@
     [defaults setValue:imgStr forKey:@"bgImage"];
     [defaults setValue:model.title forKey:@"unitTitle"];
     [defaults setValue:model.senceid forKey:@"senceid"];
-//    NSLog(@"NSUserDefaults:imageStr:%@-unitStr:%@",imgStr,model.title);
     [self.collectionView reloadData];
 }
 #pragma mark - UICollectionViewDelegateFlowLayout代理方法
@@ -258,5 +259,17 @@
         size = CGSizeMake(KScreenWidth, headerLearningH);
     }
     return size;
+}
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    return CGSizeMake(ItemWidth, ItemHeight);;
+}
+#pragma mark - 控制器销毁时释放内存
+- (void)dealloc
+{
+    [self.collectionView removeFromSuperview];
+    self.collectionView = nil;
+    [self.dataArray removeAllObjects];
+    self.learningUnits = nil;
 }
 @end

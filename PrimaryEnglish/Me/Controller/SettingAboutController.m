@@ -22,6 +22,10 @@
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
     [web loadRequest:request];
     [self.view addSubview:web];
-//    self.view.backgroundColor = [UIColor blueColor];
+}
+#pragma mark - 控制器销毁时释放内存
+- (void)dealloc
+{
+    [self.view.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
 }
 @end

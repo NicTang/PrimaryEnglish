@@ -15,6 +15,4 @@
 
 @property (nonatomic,copy) void (^learningDetailBlock)(NDDetailModel *model,NSString *title,NSInteger selectIndex,NSArray *unitsArray,NSString *courseID);
 
-//@property (nonatomic,copy) void (^titleBlock)(NSString *title,NSInteger selectIndex,NSArray *unitsArray);
-
 @end

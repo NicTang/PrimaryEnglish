@@ -71,5 +71,25 @@
     
     return newImage;
 }
-
+/**
+ *  根据view来截图(屏幕截图)
+ *
+ *  @param view 要截哪个View的图
+ *
+ *  @return 该view的一张截图
+ */
++ (instancetype)captureImageWithView:(UIView *)view
+{
+    //1、开启位图上下文
+    UIGraphicsBeginImageContextWithOptions(view.frame.size, NO, 0.0);
+    //2、拿到当前上下文
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    //3、将涂层渲染到上下文中
+    [view.layer renderInContext:ctx];
+    //4、取图
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    //5、关闭上下文
+    UIGraphicsEndImageContext();
+    return newImage;
+}
 @end

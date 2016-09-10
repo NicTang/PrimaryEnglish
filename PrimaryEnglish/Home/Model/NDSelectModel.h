@@ -26,7 +26,6 @@
 @property (nonatomic,strong) NSArray<Optional> *matchImgArr;
 
 //自定义属性
-//@property (nonatomic,strong) NSMutableArray<Optional> *selectArray;
 @property (nonatomic,strong) NSArray<Optional> *chooseArray;
 @property (nonatomic,strong) NSArray<Optional> *matchingArray;
 @property (nonatomic,strong) NSArray<Optional> *fillingArray;

@@ -24,7 +24,8 @@
 - (void)setCurrentPage:(NSInteger)currentPage
 {
     _currentPage = currentPage;
-    self.currentPageLabel.text = [NSString stringWithFormat:@"%ld/%ld",currentPage,self.totalPage];
+    [self.currentPageLabel setFont:[UIFont systemFontOfSize:20*ScaleValueX]];
+    self.currentPageLabel.text = [NSString stringWithFormat:@"%ld / %ld",currentPage,self.totalPage];
 }
 
 - (IBAction)menuBtnClick:(UIButton *)sender {

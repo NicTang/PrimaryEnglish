@@ -83,7 +83,6 @@
         nickNameVc.nickName = self.user.nickName;
         nickNameVc.nameblock = ^(NSString *nickName){
             self.user.nickName = nickName;
-//            [tableView reloadData];
             [tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationRight];
             if(self.showUserBlock){
                 self.showUserBlock(self.user);
@@ -137,7 +136,7 @@
     [alert addAction:[UIAlertAction actionWithTitle:@"使用相机拍照" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         [self selectPictureByTakingPhoto];
     }]];
-    [alert addAction:[UIAlertAction actionWithTitle:@"通过相册选图" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    [alert addAction:[UIAlertAction actionWithTitle:@"通过相册选择" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         [self selectPictureFromPhotoLibrary];
     }]];
     [alert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
@@ -163,7 +162,11 @@
         
     }else
     {
-        NSLog(@"相册无法访问！");
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"提示信息" message:@"相册无法访问！" preferredStyle:UIAlertControllerStyleAlert];
+        [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            [self dismissViewControllerAnimated:alert completion:nil];
+        }]];
+        [self presentViewController:alert animated:YES completion:nil];
     }
 }
 - (void)selectPictureByTakingPhoto
@@ -179,7 +182,11 @@
         
     }else
     {
-        NSLog(@"照相机不能使用！");
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"提示信息" message:@"照相机不能使用！" preferredStyle:UIAlertControllerStyleAlert];
+        [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            [self dismissViewControllerAnimated:alert completion:nil];
+        }]];
+        [self presentViewController:alert animated:YES completion:nil];
     }
 }
 #pragma mark - UIImagePickerControllerDelegate方法
@@ -202,12 +209,17 @@
         cell.icon = newImage;
         //刷新这一行
         [_tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationBottom];
-//        [_tableView reloadData];
         if(self.showUserBlock){
             self.showUserBlock(self.user);
         }
     }
     //返回
     [picker dismissViewControllerAnimated:YES completion:nil];
+}
+#pragma mark - 控制器销毁时释放内存
+- (void)dealloc
+{
+    [_tableView removeFromSuperview];
+    _tableView = nil;
 }
 @end

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="10117" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
     <dependencies>
-        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
     </dependencies>
     <objects>
@@ -12,17 +11,18 @@
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZFs-yt-cML">
-                    <rect key="frame" x="10" y="0.0" width="49" height="49"/>
+                    <rect key="frame" x="10" y="6" width="37" height="37"/>
                     <constraints>
-                        <constraint firstAttribute="width" constant="49" id="aM2-7k-vZv"/>
+                        <constraint firstAttribute="height" constant="37" id="UGv-Hm-iAi"/>
+                        <constraint firstAttribute="width" constant="37" id="aM2-7k-vZv"/>
                     </constraints>
-                    <state key="normal" image="menu_bar.png"/>
+                    <state key="normal" image="list.png"/>
                     <connections>
                         <action selector="menuBtnClick:" destination="KNy-xI-9tq" eventType="touchUpInside" id="RFa-O9-CS7"/>
                     </connections>
                 </button>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="I4y-S9-Xob">
-                    <rect key="frame" x="157" y="10" width="60" height="30"/>
+                    <rect key="frame" x="158" y="6" width="60" height="37"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="60" id="ZAa-Nc-TNb"/>
                         <constraint firstAttribute="height" constant="30" id="eTA-oW-IqY"/>
@@ -30,13 +30,19 @@
                     <fontDescription key="fontDescription" type="system" pointSize="15"/>
                     <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     <nil key="highlightedColor"/>
+                    <variation key="default">
+                        <mask key="constraints">
+                            <exclude reference="eTA-oW-IqY"/>
+                        </mask>
+                    </variation>
                 </label>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VKQ-Kg-PCk">
-                    <rect key="frame" x="316" y="0.0" width="49" height="49"/>
+                    <rect key="frame" x="328" y="6" width="37" height="37"/>
                     <constraints>
-                        <constraint firstAttribute="width" constant="49" id="bvA-dk-LEA"/>
+                        <constraint firstAttribute="height" constant="37" id="UL6-5l-52Y"/>
+                        <constraint firstAttribute="width" constant="37" id="bvA-dk-LEA"/>
                     </constraints>
-                    <state key="normal" image="share_bar.png"/>
+                    <state key="normal" image="share.png"/>
                     <connections>
                         <action selector="shareBtnClick:" destination="KNy-xI-9tq" eventType="touchUpInside" id="Gzv-Nc-dHl"/>
                     </connections>
@@ -46,14 +52,21 @@
             <constraints>
                 <constraint firstItem="I4y-S9-Xob" firstAttribute="centerX" secondItem="KNy-xI-9tq" secondAttribute="centerX" id="1Tx-7j-dR5"/>
                 <constraint firstItem="ZFs-yt-cML" firstAttribute="leading" secondItem="KNy-xI-9tq" secondAttribute="leading" constant="10" id="DPu-MS-BP0"/>
-                <constraint firstItem="ZFs-yt-cML" firstAttribute="top" secondItem="KNy-xI-9tq" secondAttribute="top" id="SfH-xS-wwj"/>
+                <constraint firstItem="VKQ-Kg-PCk" firstAttribute="centerY" secondItem="KNy-xI-9tq" secondAttribute="centerY" id="P0l-G6-Zky"/>
                 <constraint firstItem="I4y-S9-Xob" firstAttribute="centerY" secondItem="KNy-xI-9tq" secondAttribute="centerY" id="ahu-v0-crd"/>
                 <constraint firstAttribute="trailing" secondItem="VKQ-Kg-PCk" secondAttribute="trailing" constant="10" id="fOd-4X-GoG"/>
-                <constraint firstItem="VKQ-Kg-PCk" firstAttribute="top" secondItem="KNy-xI-9tq" secondAttribute="top" id="hXp-Q6-1jD"/>
-                <constraint firstAttribute="bottom" secondItem="ZFs-yt-cML" secondAttribute="bottom" id="kKj-KK-WLF"/>
-                <constraint firstAttribute="bottom" secondItem="VKQ-Kg-PCk" secondAttribute="bottom" id="yvc-Sr-xxt"/>
+                <constraint firstItem="I4y-S9-Xob" firstAttribute="centerX" secondItem="KNy-xI-9tq" secondAttribute="centerX" id="nka-eu-3fD"/>
+                <constraint firstItem="ZFs-yt-cML" firstAttribute="centerY" secondItem="KNy-xI-9tq" secondAttribute="centerY" id="qiP-L9-zXL"/>
+                <constraint firstAttribute="bottom" secondItem="I4y-S9-Xob" secondAttribute="bottom" constant="6" id="v8L-ZO-AqL"/>
+                <constraint firstItem="I4y-S9-Xob" firstAttribute="top" secondItem="KNy-xI-9tq" secondAttribute="top" constant="6" id="wWH-Ca-XSc"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <variation key="default">
+                <mask key="constraints">
+                    <exclude reference="1Tx-7j-dR5"/>
+                    <exclude reference="ahu-v0-crd"/>
+                </mask>
+            </variation>
             <connections>
                 <outlet property="currentPageLabel" destination="I4y-S9-Xob" id="gAq-xZ-zhI"/>
                 <outlet property="menuBtn" destination="ZFs-yt-cML" id="48Z-Nw-qAm"/>
@@ -63,7 +76,7 @@
         </view>
     </objects>
     <resources>
-        <image name="menu_bar.png" width="40" height="40"/>
-        <image name="share_bar.png" width="48" height="48"/>
+        <image name="list.png" width="45" height="45"/>
+        <image name="share.png" width="45" height="45"/>
     </resources>
 </document>

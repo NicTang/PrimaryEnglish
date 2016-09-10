@@ -6,6 +6,11 @@
 //  Copyright © 2016年 Nic. All rights reserved.
 //
 
+#define LineSpacing 30*ScaleValueY
+#define ItemSpacing 20*ScaleValueX
+#define ItemWidth (KScreenWidth - 3*ItemSpacing)/2
+#define ItemHeight 238*ItemWidth/160
+
 #import "NDCourseController.h"
 #import "AFHTTPSessionManager.h"
 #import "NDCourseModel.h"
@@ -48,13 +53,13 @@
 - (void)createUI
 {
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc]init];
-    layout.minimumLineSpacing = 30;
-    layout.minimumInteritemSpacing = 20;
-    layout.itemSize = CGSizeMake(160, 238);
-    layout.sectionInset = UIEdgeInsetsMake(20, 17, 60, 17);
+    layout.minimumLineSpacing = LineSpacing;
+    layout.minimumInteritemSpacing = ItemSpacing;
+    layout.itemSize = CGSizeMake(ItemWidth, ItemHeight);
+    layout.sectionInset = UIEdgeInsetsMake(20*ScaleValueY, 20*ScaleValueX, 60*ScaleValueY, 20*ScaleValueX);
     layout.scrollDirection = UICollectionViewScrollDirectionVertical;
     //导航栏不透明，占有一定的frame
-    self.navigationController.navigationBar.translucent = NO;
+//    self.navigationController.navigationBar.translucent = NO;
     _collectionView = [[UICollectionView alloc]initWithFrame:CGRectMake(0, 0, KScreenWidth, KScreenHeight-64) collectionViewLayout:layout];
     _collectionView.backgroundColor = [UIColor whiteColor];
     _collectionView.delegate = self;
@@ -66,7 +71,6 @@
     //添加手势
     //设置下拉刷新（重新请求第一页数据）
     self.collectionView.header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
-//        [self.dataArray removeAllObjects];
         self.currentPage ++;
         [self requestData];
     }];
@@ -87,7 +91,6 @@
         
         [self.dataArray addObjectsFromArray:[NDCourseModel arrayOfModelsFromDictionaries:array]];
         
-//        NSLog(@"count:%ld",self.dataArray.count);
         [self.collectionView reloadData];
         //！！！千万记得结束刷新
         [self.collectionView.header endRefreshing];
@@ -95,7 +98,11 @@
         
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (error) {
-            NSLog(@"error :%@",error.localizedDescription);
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"网络请求失败提示信息" message:error.localizedDescription preferredStyle:UIAlertControllerStyleAlert];
+            [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                [self dismissViewControllerAnimated:alert completion:nil];
+            }]];
+            [self presentViewController:alert animated:YES completion:nil];
         }
     }];
 }
@@ -110,6 +117,7 @@
 {
     NDCourseCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"courseCell" forIndexPath:indexPath];
     cell.model = self.dataArray[indexPath.item];
+    cell.layer.masksToBounds = YES;
     return cell;
 }
 #pragma mark - UICollectionView代理方法
@@ -122,5 +130,16 @@
     detailVc.courseID = model.pkgid;
     detailVc.title = model.title;
     [self.navigationController pushViewController:detailVc animated:YES];
+}
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    return CGSizeMake(ItemWidth, ItemHeight);
+}
+#pragma mark - 控制器销毁时释放内存
+- (void)dealloc
+{
+    [self.dataArray removeAllObjects];
+    [self.collectionView removeFromSuperview];
+    self.collectionView = nil;
 }
 @end

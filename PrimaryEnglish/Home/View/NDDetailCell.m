@@ -29,19 +29,21 @@
     NSString *imgStr = [NSString stringWithFormat:PrefixForUrl,model.cover];
     [self.iconView setImageWithURL:[NSURL URLWithString:imgStr]];
     self.unitLabel.text = model.title;
-    self.isFreeBtn.contentMode = UIViewContentModeLeft;
-    self.isFreeBtn.layer.borderWidth = 1;
+    [self.unitLabel setFont:[UIFont systemFontOfSize:15*ScaleValueY]];
+    
+    NSDictionary *dict = @{NSForegroundColorAttributeName:[UIColor whiteColor],NSFontAttributeName:[UIFont systemFontOfSize:15*ScaleValueY]};
+    NSAttributedString *attrs = [[NSAttributedString alloc]initWithString:@"免费试学" attributes:dict];
+    self.isFreeBtn.contentMode = UIViewContentModeCenter;
+    [self.isFreeBtn setAttributedTitle:attrs forState:UIControlStateNormal];
     self.isFreeBtn.layer.cornerRadius = 6;
-    [self.isFreeBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    self.isFreeBtn.layer.borderColor = Color(234, 103, 37).CGColor;
     self.isFreeBtn.backgroundColor = Color(234, 103, 37);
     self.isFreeBtn.hidden = [model.free doubleValue]==0;
+    
     self.selectionStyle = UITableViewCellSelectionStyleNone;
 }
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
     [super setSelected:selected animated:animated];
 
-    // Configure the view for the selected state
 }
 
 - (IBAction)freeBtnClick:(id)sender {

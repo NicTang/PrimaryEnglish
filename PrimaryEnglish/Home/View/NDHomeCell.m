@@ -20,7 +20,6 @@
 
 - (void)awakeFromNib {
     [super awakeFromNib];
-//    self.backgroundColor = [UIColor redColor];
 }
 - (void)setModel:(NDHomeModel *)model
 {
@@ -28,5 +27,6 @@
     NSString *imgStr = [NSString stringWithFormat:@"http://app.ekaola.com/%@",model.img];
     [self.iconView setImageWithURL:[NSURL URLWithString:imgStr]];
     self.nameLabel.text = model.name;
+    [self.nameLabel setFont:[UIFont systemFontOfSize:10*ScaleValueY]];
 }
 @end

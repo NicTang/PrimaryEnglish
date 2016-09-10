@@ -5,6 +5,7 @@
 //  Created by Nic Downey on 16/7/14.
 //  Copyright © 2016年 Nic. All rights reserved.
 //
+#define PlaceHolderImg [UIImage imageNamed:@"placeholderImage"]
 
 #import "NDHeaderCell.h"
 #import "UserModel.h"
@@ -28,19 +29,18 @@
 - (void)setModel:(UserModel *)model
 {
     _model = model;
-    UIImage *image = [UIImage clipImageWithImage:model.image setSize:self.iconView.frame.size];
+    
+    UIImage *image = PlaceHolderImg;
+    if (model.status==0&&image!=model.image) {
+        image = [UIImage clipImageWithImage:model.image setSize:self.iconView.frame.size];
+    }
     self.iconView.image = image;
-        
-//    self.iconView.image = model.image;
     self.nickNameLabel.text = model.nickName;
-//    self.iconView.layer.cornerRadius = 50;
-//    self.iconView.layer.masksToBounds = YES;
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
     [super setSelected:selected animated:animated];
 
-    // Configure the view for the selected state
 }
 
 @end

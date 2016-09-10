@@ -11,6 +11,7 @@
 #import "UserModel.h"
 
 @interface NDLoginController ()<UITextFieldDelegate>
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *loginBtnHeightConstraint;
 
 @property (weak, nonatomic) IBOutlet UITextField *phoneNum;
 @property (weak, nonatomic) IBOutlet UITextField *codeNum;
@@ -34,23 +35,14 @@
     self.countDowmTime = CountDown;
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(hideKeyBoard)];
     [self.view addGestureRecognizer:tap];
-}
-- (void)awakeFromNib
-{
-    self.loginBtn.layer.cornerRadius = 8;
-    [self.codeBtn setBackgroundColor:Color(234, 103, 37)];
+    self.loginBtnHeightConstraint.constant = 43*ScaleValueY;
+    [self.loginBtn.titleLabel setFont:[UIFont systemFontOfSize:17*ScaleValueY]];
 }
 /**
  *  从xib中加载控制器
  */
 - (instancetype)init
 {
-//    if (self = [super init]) {
-//        self = [self initWithNibName:@"NDLoginController" bundle:[NSBundle mainBundle]];
-//        self.loginBtn.layer.cornerRadius = 8;
-//        [self.codeBtn setBackgroundColor:Color(234, 103, 37)];
-//    }
-//    return self;
     return [self initWithNibName:@"NDLoginController" bundle:[NSBundle mainBundle]];
 }
 /**
@@ -188,13 +180,13 @@
             }
             return;
         }
-        NSLog(@"responseObject:%@",responseObject);
         NSInteger status = [responseObject[@"status"] integerValue];
         if (status==0) {
             UserModel *model = [NSKeyedUnarchiver unarchiveObjectWithFile:NDModelSavePath];
             if (model==nil) {
                 [self alertViewWithTitle:@"登录成功！"];
                 if ([self.userLoginModel.nickName isEqualToString:@"未登录"]) {
+                    self.userLoginModel.image = [UIImage imageNamed:@"placeholderImage"];
                     self.userLoginModel.nickName = @"我";
                 }
                 self.userLoginModel.status = status;
@@ -219,7 +211,11 @@
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (error) {
-            NSLog(@"error:%@",error.localizedDescription);
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"网络请求失败提示信息" message:error.localizedDescription preferredStyle:UIAlertControllerStyleAlert];
+            [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                [self dismissViewControllerAnimated:alert completion:nil];
+            }]];
+            [self presentViewController:alert animated:YES completion:nil];
         }
     }];
 }
@@ -249,5 +245,12 @@
     {
         [self.codeIcon setHighlighted:NO];
     }
+}
+#pragma mark - 控制器销毁时释放内存
+- (void)dealloc
+{
+    [self.view.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    [self.timer invalidate];
+    self.timer = nil;
 }
 @end

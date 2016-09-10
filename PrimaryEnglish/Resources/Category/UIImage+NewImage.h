@@ -13,5 +13,5 @@
 + (instancetype)createImageWithColor:(UIColor *)color;
 
 +(instancetype)clipImageWithImage:(UIImage *)image setSize:(CGSize)imgSize;
-
++ (instancetype)captureImageWithView:(UIView *)view;
 @end

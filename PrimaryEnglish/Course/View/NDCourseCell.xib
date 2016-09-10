@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="10117" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
     <dependencies>
-        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
     </dependencies>
     <objects>
@@ -26,17 +25,27 @@
                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="yBL-7X-L4n">
-                        <rect key="frame" x="110" y="-50" width="110" height="110"/>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="yBL-7X-L4n">
+                        <rect key="frame" x="110" y="-50" width="100" height="100"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ib5-XJ-xeS">
-                                <rect key="frame" x="10" y="80" width="80" height="30"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ib5-XJ-xeS">
+                                <rect key="frame" x="10" y="73" width="80" height="27"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="27" id="G1l-r0-u1i"/>
+                                </constraints>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="Ib5-XJ-xeS" secondAttribute="trailing" constant="10" id="GvI-J7-Oj4"/>
+                            <constraint firstAttribute="bottom" secondItem="Ib5-XJ-xeS" secondAttribute="bottom" id="acS-Nw-sJ6"/>
+                            <constraint firstAttribute="height" constant="100" id="cHe-Ec-bgv"/>
+                            <constraint firstItem="Ib5-XJ-xeS" firstAttribute="leading" secondItem="yBL-7X-L4n" secondAttribute="leading" constant="10" id="uj1-bW-sru"/>
+                            <constraint firstAttribute="width" constant="100" id="yvG-lS-tim"/>
+                        </constraints>
                     </view>
                 </subviews>
                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
@@ -48,6 +57,8 @@
                 <constraint firstAttribute="trailing" secondItem="D2J-au-oI2" secondAttribute="trailing" id="QcN-bN-Bqm"/>
                 <constraint firstItem="D0q-lC-Clg" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="QiZ-FN-92I"/>
                 <constraint firstItem="D0q-lC-Clg" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="b4K-6X-EOw"/>
+                <constraint firstItem="yBL-7X-L4n" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="-50" id="eW6-nc-tsT"/>
+                <constraint firstAttribute="trailing" secondItem="yBL-7X-L4n" secondAttribute="trailing" constant="-50" id="gx2-2J-pxP"/>
                 <constraint firstItem="D2J-au-oI2" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="joo-ny-ZRx"/>
             </constraints>
             <size key="customSize" width="155" height="249"/>

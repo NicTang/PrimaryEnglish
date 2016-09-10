@@ -11,6 +11,7 @@
 #import "UMSocial.h"
 #import "UMSocialWechatHandler.h"
 #import "UMSocialSinaSSOHandler.h"
+#import "UIImage+NewImage.h"
 
 @interface AppDelegate ()
 
@@ -28,18 +29,17 @@
     //打开新浪微博的SSO开关，设置新浪微博回调地址，这里必须要和你在新浪微博后台设置的回调地址一致。需要 #import "UMSocialSinaSSOHandler.h"
     [UMSocialSinaSSOHandler openNewSinaSSOWithAppKey:KSinaAppIDString secret:KSinaAppSecretString RedirectURL:@"http://sns.whalecloud.com/sina2/callback"];
     
-    NSDictionary *dict = @{NSFontAttributeName :[UIFont systemFontOfSize:18],NSForegroundColorAttributeName:[UIColor whiteColor]};
+    NSDictionary *dict = @{NSFontAttributeName :[UIFont systemFontOfSize:18*ScaleValueX],NSForegroundColorAttributeName:[UIColor whiteColor]};
     //设置导航栏的标题文本样式
     [[UINavigationBar appearance]setTitleTextAttributes:dict];
     //设置导航栏的样式为黑色
     [[UINavigationBar appearance]setBarStyle:UIBarStyleBlack];
-    //导航栏的背景色
-    [[UINavigationBar appearance]setBarTintColor:Color(234, 103, 37)];
-    //设置导航栏文字颜色
+    //导航栏的背景色（用颜色生成图片，作为导航条的背景图片）
+    [[UINavigationBar appearance]setBackgroundImage:[UIImage createImageWithColor:Color(234, 103, 37)] forBarMetrics:UIBarMetricsDefault];
+    [[UINavigationBar appearance]setShadowImage:[UIImage createImageWithColor:[UIColor clearColor]]];
+    //设置导航栏返回按钮文字颜色
     [[UINavigationBar appearance]setTintColor:[UIColor whiteColor]];
-//    [[UIBarButtonItem appearance]setBackButtonTitlePositionAdjustment:UIOffsetMake(NSIntegerMin, NSIntegerMin) forBarMetrics:UIBarMetricsDefault];
-//    [UITabBar appearance].translucent = NO;
-//    [[UITabBar appearance]setTintColor:[UIColor whiteColor]];
+    
     //1、创建窗口
     self.window.backgroundColor = [UIColor whiteColor];
     //自定义控制器

@@ -49,8 +49,9 @@
 }
 - (void)saveNickName:(UIButton *)button
 {
-    if ([_nickNameText.text isEqualToString:@""]) {
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"提示信息" message:@"昵称不能为空！" preferredStyle:UIAlertControllerStyleAlert];
+    if ([_nickNameText.text isEqualToString:@""]||_nickNameText.text.length>20) {
+        NSString *tipString = (_nickNameText.text.length>20)?@"昵称不能超过20个字符，一个中文占两个字符":@"昵称不能为空！";
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"提示信息" message:tipString preferredStyle:UIAlertControllerStyleAlert];
         [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
             _nickNameText.text = self.nickName;
         }]];
@@ -63,11 +64,9 @@
         [self.navigationController popViewControllerAnimated:YES];
     }
 }
-#pragma mark - UITextFieldDelegate方法
-//- (void)textFieldDidEndEditing:(UITextField *)textField
-//{
-//    if ([textField.text isEqualToString:@""]) {
-//        _saveBtn.enabled = NO;
-//    }
-//}
+#pragma mark - 控制器销毁时释放内存
+- (void)dealloc
+{
+    [self.view.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+}
 @end

@@ -30,6 +30,7 @@
     NSString *imgStr = [NSString stringWithFormat:@"http://app.ekaola.com/%@",model.cover];
     [self.iconView setImageWithURL:[NSURL URLWithString:imgStr]];
     self.nameLabel.text = model.title;
+    [self.nameLabel setFont:[UIFont systemFontOfSize:15*ScaleValueX]];
     
     [self.isFreeLabel setTextColor:[UIColor whiteColor]];
     self.isFreeBgView.transform = CGAffineTransformMakeRotation(M_PI_4);

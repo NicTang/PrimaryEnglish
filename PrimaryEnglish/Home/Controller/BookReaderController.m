@@ -5,7 +5,9 @@
 //  Created by Nic Downey on 16/7/21.
 //  Copyright © 2016年 Nic. All rights reserved.
 //
-#define DataSavePath @"/Users/tangzhaoning/请求数据/%@.plist"
+#define TableViewRowH 46*ScaleValueY
+#define TableViewHeaderH 60*ScaleValueY
+#define UnitTabBarH 49*ScaleValueY
 
 #import "BookReaderController.h"
 #import "AFHTTPSessionManager.h"
@@ -17,6 +19,7 @@
 #import <AVFoundation/AVFoundation.h>//播放音乐
 #import "UMSocialSnsService.h"//友盟分享
 #import "UMSocialSnsPlatformManager.h"
+#import "UIImage+NewImage.h"
 
 @interface BookReaderController ()<UnitTabBarDelegate,UITableViewDelegate,UITableViewDataSource,SelectCourseHeaderDelegate,UIScrollViewDelegate>
 
@@ -51,12 +54,6 @@
     [super viewDidLoad];
     [self createUI];
     [self refreshUI];
-//    __weak typeof(self) weakSelf = self;
-//    self.allDataBlock = ^(NSMutableArray *allDataArray){
-//        NSLog(@"%ld",allDataArray.count);
-//        NSString *path = [NSString stringWithFormat:@"/Users/tangzhaoning/Desktop/%@.plist",weakSelf.senceid];
-//        [allDataArray writeToFile:path atomically:YES];
-//    };
 }
 - (NSIndexPath *)selectedIndexPath
 {
@@ -105,7 +102,7 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.scrollView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
         for (int i = 0 ; i<imgArray.count; i++) {
-            UIImageView *imageView = [[UIImageView alloc]initWithFrame:CGRectMake(i*KScreenWidth, 0, KScreenWidth, KScreenHeight-64-49)];
+            UIImageView *imageView = [[UIImageView alloc]initWithFrame:CGRectMake(i*KScreenWidth, 0, KScreenWidth, KScreenHeight-64-UnitTabBarH)];
             //!!!   URL != String
             NSURL *url = [NSURL URLWithString:imgArray[i]];
             [imageView setImageWithURL:url];
@@ -113,6 +110,13 @@
             self.scrollView.contentSize = CGSizeMake(imgArray.count*KScreenWidth, 0);
             [self.scrollView addSubview:imageView];
         }
+        _unitTabBar = [UnitTabBar unitTabbar];
+        CGFloat unitTabBarY = CGRectGetMaxY(self.scrollView.frame);
+        _unitTabBar.frame = CGRectMake(0, unitTabBarY, KScreenWidth, UnitTabBarH);
+        _unitTabBar.totalPage = imgArray.count;
+        _unitTabBar.currentPage = 1;
+        _unitTabBar.delegate = self;
+        [self.view addSubview:_unitTabBar];
     });
     //得到字典,更新显示图片之后，开始执行block中的代码，即播放音频
     //（延时执行某段代码）
@@ -134,42 +138,13 @@
             }];
         }];
     });
-//    dispatch_async(queue, ^{
-//        [self requestAllDataUntilCompletion:^(NSMutableArray *dataArray) {
-////            NSLog(@"dataArray:%ld-%@",dataArray.count,dataArray);
-//            if (dataArray.count==self.unitsArray.count) {
-//                //将代表所有单元的数组用block方式返回
-//                if (self.allDataBlock) {
-//                    self.allDataBlock(dataArray);
-//                }
-//                //主线程上更新UI
-//                dispatch_async(dispatch_get_main_queue(), ^{
-//                    int sum = 0;
-//                    for (NDDetailModel *model in self.unitsArray) {
-//                        NSString *senceid = model.senceid;
-//                        
-//                        for (NSDictionary *dict in dataArray) {
-//                            NSArray *array = dict[senceid];
-//                            sum += array.count;
-//                        }
-//                    }
-//                    self.tabBar.currentPageLabel.text = [NSString stringWithFormat:@"1/%d",sum];
-//                });
-//            }
-//        }];
-//    });
 }
 - (void)createUI
 {
-    _scrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, 0, KScreenWidth, KScreenHeight)];
+    _scrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, 0, KScreenWidth, KScreenHeight-64-UnitTabBarH)];
     _scrollView.delegate = self;
     _scrollView.pagingEnabled = YES;
     [self.view addSubview:_scrollView];
-    
-    _unitTabBar = [UnitTabBar unitTabbar];
-    _unitTabBar.frame = CGRectMake(0, KScreenHeight-64-49, KScreenWidth, 49);
-    _unitTabBar.delegate = self;
-    [self.view addSubview:_unitTabBar];
 }
 - (void)requestDataWithSenceid:(NSString *)senceid completion:(void (^)(NSDictionary *imageDict,NSDictionary *mp3Dict))completion
 {
@@ -180,14 +155,17 @@
     [manager GET:url parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSArray *rootArray = responseObject;
         //保存请求数据到本地
-//        [rootArray writeToFile:[NSString stringWithFormat:DataSavePath,senceid] atomically:YES];
         [self parseDataFromArray:rootArray withSenceid:senceid completion:^(NSDictionary *imgDict, NSDictionary *mp3Dict) {
             //回调传值，将每单元的图片字典回传
             completion(imgDict,mp3Dict);
         }];
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (error) {
-            NSLog(@"error:%@",error.localizedDescription);
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"网络请求失败提示信息" message:error.localizedDescription preferredStyle:UIAlertControllerStyleAlert];
+            [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                [self dismissViewControllerAnimated:alert completion:nil];
+            }]];
+            [self presentViewController:alert animated:YES completion:nil];
         }
     }];
 }
@@ -260,8 +238,10 @@
     _coverView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, KScreenWidth, KScreenHeight-64)];
     _coverView.backgroundColor = [UIColor blackColor];
     _coverView.alpha = 0.5;
-    
-    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, KScreenHeight-64-450-60, KScreenWidth, 510) style:UITableViewStyleGrouped];
+    CGFloat tableViewH = self.unitsArray.count*TableViewRowH+TableViewHeaderH;
+    CGFloat tableViewY = KScreenHeight-64-tableViewH;
+    CGRect frame = CGRectMake(0, tableViewY, KScreenWidth, tableViewH);
+    _tableView = [[UITableView alloc]initWithFrame:frame style:UITableViewStyleGrouped];    
     _tableView.delegate = self;
     _tableView.dataSource = self;
     _tableView.scrollEnabled = NO;
@@ -272,10 +252,11 @@
 {
     [UMSocialData defaultData].extConfig.wechatSessionData.url = @"http://baidu.com";
     [UMSocialData defaultData].extConfig.wechatTimelineData.url = @"http://baidu.com";
-    [UMSocialData defaultData].extConfig.wechatSessionData.title = @"微信好友title";
-    [UMSocialData defaultData].extConfig.wechatTimelineData.title = @"微信朋友圈title";
+    [UMSocialData defaultData].extConfig.wechatSessionData.title = self.title;
+    [UMSocialData defaultData].extConfig.wechatTimelineData.title = self.title;
+    NSString *infoString = [NSString stringWithFormat:@"我正在学 %@，你也一起来吧！",self.title];
     //分享png、jpg图片
-    [UMSocialSnsService presentSnsIconSheetView:self appKey:KUMengAppKeyString shareText:@"你好" shareImage:[UIImage imageNamed:@"placeholderImage"] shareToSnsNames:@[UMShareToSina,UMShareToWechatSession,UMShareToWechatTimeline] delegate:nil];
+    [UMSocialSnsService presentSnsIconSheetView:self appKey:KUMengAppKeyString shareText:infoString shareImage:[UIImage captureImageWithView:self.view] shareToSnsNames:@[UMShareToSina,UMShareToWechatSession,UMShareToWechatTimeline] delegate:nil];
 }
 #pragma mark - SelectCourseHeaderDelegate代理方法
 - (void)selectCourseCancel:(SelectCourseHeader *)header
@@ -315,9 +296,13 @@
     }
     return nil;
 }
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return TableViewRowH;
+}
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
-    return 60;
+    return TableViewHeaderH;
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -332,7 +317,6 @@
     UITableViewCell *SelectCell = [tableView cellForRowAtIndexPath:indexPath];
     [SelectCell.textLabel setTextColor:[UIColor redColor]];
     
-//    NDDetailModel *model = self.unitsArray[indexPath.row];
     NSString *senceid = model.senceid;
     self.title = model.title;
     
@@ -341,7 +325,6 @@
     self.senceid = senceid;
     
     [self requestDataWithSenceid:senceid completion:^(NSDictionary *imageDict, NSDictionary *mp3Dict) {
-//        NSLog(@"imageDict:%@,mp3Dict:%@",imageDict,mp3Dict);
         [self showImageWithDict:imageDict play:mp3Dict senceid:senceid handler:^{
             self.currentPage = 1;
             self.scrollView.contentOffset = CGPointMake(0, 0);
@@ -361,7 +344,6 @@
     //一开始播放第一张图片所对应的mp3
     //获得第一张图片所对应的mp3数组
     [self getMp3ArrayWithIndex:1 senceid:senceid];
-//    NSLog(@"self.mp3Dict:%@",self.mp3Dict);
     [self initMp3Player];
 }
 /**
@@ -378,6 +360,7 @@
     {
         self.currentPage = index;
     }
+    self.unitTabBar.currentPage = index;
     //先得到mp3的URL数组
     [self getMp3ArrayWithIndex:index senceid:self.senceid];
     [self initMp3Player];
@@ -392,8 +375,6 @@
             break;
         }
     }
-    NSLog(@"当前是第%d张图片！",index);
-//    NSLog(@"一共 %ld 句话：%@",self.mp3Array.count,self.mp3Array);
 }
 - (void)initMp3Player
 {
@@ -405,16 +386,18 @@
     }
     _mp3Player = [AVQueuePlayer queuePlayerWithItems:itemArray];
     [_mp3Player play];
-//    NSLog(@"player:%@",_mp3Player.currentItem);
 }
 - (void)playbackFinished
 {
     //播放下一首mp3
     [self.mp3Player advanceToNextItem];
 }
+#pragma mark - 控制器销毁时释放内存
 - (void)dealloc
 {
     self.mp3Player = nil;
+    [self.view.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    [self.totalDataArray removeAllObjects];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 @end

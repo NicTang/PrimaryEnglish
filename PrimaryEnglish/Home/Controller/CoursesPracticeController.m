@@ -6,23 +6,23 @@
 //  Copyright © 2016年 Nic. All rights reserved.
 //
 
-#define DataSavePath @"/Users/tangzhaoning/词汇练习数据/%@-%@.plist"
-#define ScaleValue KScreenWidth/375
-#define Padding 20*ScaleValue
-#define PaddingX 20*ScaleValue
-#define ProgressLabelW 40*ScaleValue
-#define PlayBtnWH 30*ScaleValue
-#define ChoiceLabelH 3*PaddingX
-#define NextBtnH 40*ScaleValue
+#define BaseScrollViewTag 100
+#define ResultScrollViewTag 300
 
-#define MatchPaddingX 3*Padding
-#define MatchPaddingY 16*ScaleValue
+#define SelectViewBaseTag 300
+#define IsRightChoiceWH 60*ScaleValueX
+#define IsRightMatchWH 32*ScaleValueX
 
-#define BaseImgW (KScreenWidth-3*MatchPaddingX)*7/13
-#define BaseImgH BaseImgW*255/300
+#define LimitViewX 20*ScaleValueX
+#define LimitViewY 30*ScaleValueY
+#define CrossBtnWH 30*ScaleValueY
 
-#define MatchImgW (KScreenWidth-3*MatchPaddingX)*6/13
-#define MatchImgH MatchImgW*255/300
+#define CardPageViewH 49*ScaleValueY
+#define CardPaddingX 30*ScaleValueX
+#define CardPaddingY 30*ScaleValueX
+#define CardPagePaddingY 20*ScaleValueY
+#define PageLabelW 66*ScaleValueX
+#define PageLabelH 40*ScaleValueY
 
 #import "CoursesPracticeController.h"
 #import "AFHTTPSessionManager.h"//网络请求
@@ -31,17 +31,24 @@
 #import "NDSelectModel.h"//词汇练习所有题目模型
 #import "NDChooseModel.h"//词汇练习选择题目模型
 #import "NDMatchModel.h"//词汇练习图片拖拽连线模型
-#import "NDFillingModel.h"//词汇练习填空题模型
-#import "NDWordModel.h"//词汇练习选词成句模型
 #import <AVFoundation/AVFoundation.h>//音频播放
+#import "AnswerChoiceModel.h"
+#import "AnswerResultView.h"
+#import "UMSocialSnsService.h"//友盟分享
+#import "UMSocialSnsPlatformManager.h"
+#import "UIImage+NewImage.h"
+#import "UserModel.h"
 
-@interface CoursesPracticeController ()<UIScrollViewDelegate>
+@interface CoursesPracticeController ()<UIScrollViewDelegate,AnswerResultViewDelegate>
 {
     UIScrollView *_scrollView;
     UIView *_exerciseView;
     UIProgressView *_progressView;
     AVPlayer *_player;
     NSTimer *_timer;
+    UIView *_resultDetailView;
+    UIView *_cardPageView;
+    UILabel *_pageLabel;
 }
 @property (nonatomic,strong) NSMutableDictionary *cardDict;
 @property (nonatomic,strong) NSMutableArray *exerciseArray;
@@ -50,6 +57,8 @@
 
 @property (nonatomic,strong) UIView *selectedView;
 
+@property (nonatomic,strong) UIButton *nextButton;//下一题
+@property (nonatomic,copy) NSString *playMp3Url;
 //拖拽连线
 @property (nonatomic,strong) NSMutableArray *baseFrameArray;
 @property (nonatomic,strong) NSMutableArray *matchFrameArray;
@@ -60,7 +69,12 @@
 
 @property (nonatomic,strong) NSMutableArray *baseIsEmptyIndexes;
 @property (nonatomic,strong) NSMutableArray *matchTransIndexes;
-@property (nonatomic,strong) UIButton *nextButton;//下一题
+@property (nonatomic,strong) NSMutableArray *answerArray;
+//答题情况
+@property (nonatomic,assign) NSInteger trueAnswerIndex;
+@property (nonatomic,assign) NSInteger choiceIndex;//用户选择
+@property (nonatomic,strong) NSDictionary *currentLineDict;
+@property (nonatomic,strong) NSMutableDictionary *answerMp3Dict;
 @end
 
 @implementation CoursesPracticeController
@@ -78,7 +92,6 @@
     [self createUI];
     
     [self requestDataWithSenceid:self.senceid completionHandler:^(NSMutableDictionary *cardDict, NSArray *exerciseArray) {
-        NSLog(@"%ld-%ld",cardDict.count,exerciseArray.count);
         self.currentPage = 0;
         [self refreshUI:^{
             NSArray *mp3Array = cardDict[@(self.currentPage)];
@@ -149,15 +162,31 @@
     }
     return _matchTransIndexes;
 }
+- (NSMutableArray *)answerArray
+{
+    if (!_answerArray) {
+        _answerArray = [NSMutableArray array];
+    }
+    return _answerArray;
+}
+- (NSMutableDictionary *)answerMp3Dict
+{
+    if (!_answerMp3Dict) {
+        _answerMp3Dict = [NSMutableDictionary dictionary];
+    }
+    return _answerMp3Dict;
+}
 - (void)createUI
 {
     _scrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, 0, KScreenWidth, KScreenHeight-64)];
     _scrollView.pagingEnabled = YES;
+    _scrollView.tag = BaseScrollViewTag;
     _scrollView.showsHorizontalScrollIndicator = NO;
     _scrollView.delegate = self;
     self.view.backgroundColor = Color(234, 103, 37);
     [self.view addSubview:_scrollView];
 }
+#pragma mark - 请求数据之后刷新UI
 - (void)refreshUI:(void(^)())completionHandler
 {
     if (self.cardDict.count!=0) {
@@ -170,27 +199,48 @@
             imageView.userInteractionEnabled = YES;
             UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(rotateToShowBackgroundImage:)];
             [imageView addGestureRecognizer:tap];
-            imageView.frame = CGRectMake(i*KScreenWidth+30, 30, KScreenWidth-60, KScreenHeight-150);
+            imageView.frame = CGRectMake(i*KScreenWidth+CardPaddingX, CardPaddingY, KScreenWidth-2*CardPaddingX, KScreenHeight-64-CardPaddingY-CardPageViewH-CardPagePaddingY);
             [_scrollView addSubview:imageView];
         }
+        CGFloat cardPageViewY = CGRectGetMaxY(_scrollView.frame)-CardPageViewH;
+        _cardPageView = [[UIView alloc]init];
+        _cardPageView.frame = CGRectMake(0, cardPageViewY, KScreenWidth, CardPageViewH);
+        _cardPageView.hidden = NO;
+        _cardPageView.backgroundColor = Color(234, 103, 37);
+        [self.view addSubview:_cardPageView];
+        
+        _pageLabel = [[UILabel alloc]initWithFrame:CGRectMake((KScreenWidth-PageLabelW)/2, (CardPageViewH-PageLabelH)/2, PageLabelW, PageLabelH)];
+        [_pageLabel setText:[NSString stringWithFormat:@"1 / %ld",self.cardDict.count]];
+        [_pageLabel setTextColor:[UIColor whiteColor]];
+        [_pageLabel setFont:[UIFont systemFontOfSize:20*ScaleValueX]];
+        [_cardPageView addSubview:_pageLabel];
         //播放音频
         completionHandler();
     }
-    _exerciseView = [self createViewWithIndex:0];
+    CGRect viewFrame = CGRectMake(self.cardDict.count*KScreenWidth, 0, KScreenWidth, KScreenHeight);
+    _exerciseView = [self createViewWithIndex:0 viewFrame:viewFrame width:KScreenWidth height:KScreenHeight isResultFlag:NO userAnswer:nil];
     _scrollView.contentSize = CGSizeMake(KScreenWidth*(self.cardDict.count+1), 0);
     [_scrollView addSubview:_exerciseView];
 }
-- (UIView *)createViewWithIndex:(NSInteger)index
+#pragma mark - 下一题界面设计
+- (UIView *)createViewWithIndex:(NSInteger)index viewFrame:(CGRect)frame width:(CGFloat)width height:(CGFloat)height isResultFlag:(BOOL)flag userAnswer:(id)answer
 {
     NSDictionary *modelDict = self.exerciseArray[index];
     NSString *type = modelDict.allKeys[0];
     
     UIView *view = [[UIView alloc]init];
     view.backgroundColor = [UIColor whiteColor];
-    view.frame = CGRectMake(self.cardDict.count*KScreenWidth, 0, KScreenWidth, KScreenHeight);
-    CGFloat progressW = KScreenWidth-2*PaddingX - ProgressLabelW;
-    _progressView = [[UIProgressView alloc]initWithFrame:CGRectMake(PaddingX, 1.5*Padding, progressW, 30)];
-    _progressView.transform = CGAffineTransformMakeScale(1.0f, 4.0f);
+    view.frame = frame;
+    
+    CGFloat scaleNumberX = 1.0*width/KScreenWidth;
+    CGFloat scaleNumberY = 1.0*height/KScreenHeight;
+    CGFloat paddingX = 20*scaleNumberX;
+    CGFloat paddingY = 20*scaleNumberY;
+    CGFloat progressLabelW = 40*scaleNumberX;
+    
+    CGFloat progressW = width-2*paddingX - progressLabelW;
+    _progressView = [[UIProgressView alloc]initWithFrame:CGRectMake(paddingX, 1.5*paddingY, progressW, 10*scaleNumberY)];
+    _progressView.transform = CGAffineTransformMakeScale(1.0f, 4.0f*scaleNumberY);
     _progressView.contentMode = UIViewContentModeScaleAspectFill;
     _progressView.layer.cornerRadius = 3.5;
     _progressView.layer.masksToBounds = YES;
@@ -200,40 +250,63 @@
     [view addSubview:_progressView];
     
     CGFloat labelX = CGRectGetMaxX(_progressView.frame);
-    UILabel *progressLabel = [[UILabel alloc]initWithFrame:CGRectMake(labelX, Padding, ProgressLabelW, 20)];
+    UILabel *progressLabel = [[UILabel alloc]initWithFrame:CGRectMake(labelX, paddingY, progressLabelW, 20*scaleNumberY)];
     
     NSString *textStr = [NSString stringWithFormat:@"%ld/%ld",(index+1),self.exerciseArray.count];
-    [self setAttributedTextForLabel:progressLabel withTextString:textStr textColor:Color(168, 168, 168) font:[UIFont boldSystemFontOfSize:13]];
+    [self setAttributedTextForLabel:progressLabel withTextString:textStr textColor:Color(168, 168, 168) font:[UIFont boldSystemFontOfSize:12*scaleNumberY]];
     [view addSubview:progressLabel];    
     
-    CGFloat textX = PaddingX;
-    CGFloat textY = CGRectGetMaxY(_progressView.frame) + Padding;
-    CGRect playBtnFrame = CGRectMake(PaddingX, textY, PlayBtnWH, PlayBtnWH);
+    CGFloat textX = paddingX;
+    CGFloat playBtnWH = 25*scaleNumberY;
+    CGFloat textY = CGRectGetMaxY(_progressView.frame) + paddingY;
+    CGRect playBtnFrame = CGRectMake(paddingX, textY, playBtnWH, playBtnWH);
+    //简单选择题
     if ([type isEqualToString:@"simple_choose"]) {
         NDChooseModel *choose = modelDict[type];
-        UIButton *playBtn = [self isCreatePlayBtnByMp3Url:choose.mp3Url withFrame:playBtnFrame playImage:@"playMp340" pauseImage:nil];
+        UIButton *playBtn = [self isCreatePlayBtnByMp3Url:choose.mp3Url withFrame:playBtnFrame playImage:@"playMp340"];
         if (playBtn!=nil) {
-            
-            NSURL *mp3Url = [NSURL URLWithString:choose.mp3Url];
-            AVPlayer *player = [AVPlayer playerWithURL:mp3Url];
-            [player play];
-            
-            textX += PlayBtnWH + 5;
+            [self.answerMp3Dict setObject:choose.mp3Url forKey:@(index)];
+            textX += playBtnWH + 3*scaleNumberX;
             [view addSubview:playBtn];
+        }else
+        {
+           [self.answerMp3Dict setObject:@"0" forKey:@(index)];
         }
-        CGFloat textW = KScreenWidth - textX - PaddingX;
-        UILabel *tipLabel = [self tipLabelWithFrame:CGRectMake(textX, textY, textW, PlayBtnWH) labelText:choose.tipLabelText];
+        CGFloat textW = width - textX - paddingX/5;
+        UILabel *tipLabel = [self tipLabelWithFrame:CGRectMake(textX, textY, textW, playBtnWH) labelText:choose.tipLabelText];
+        [tipLabel setFont:[UIFont systemFontOfSize:15*scaleNumberY]];
         [view addSubview:tipLabel];
         
-        CGFloat chooseY = CGRectGetMaxY(tipLabel.frame) + Padding;
-        if (choose.isPic) {
-            int columns = 2;
-            CGFloat imgViewWH = (KScreenWidth - (columns+1)*PaddingX)/columns;
+        NSInteger choiceIndex = -1;
+        NSInteger trueIndex = -1;
+        if (answer!=nil) {
+            if ([answer isKindOfClass:[AnswerChoiceModel class]]) {
+                AnswerChoiceModel *model = answer;
+                choiceIndex = model.userIndex;
+                trueIndex = model.trueIndex;
+            }
+        }
+        CGFloat chooseY = CGRectGetMaxY(tipLabel.frame) + paddingY;
+        CGFloat nextBtnH = 40*scaleNumberY;
+        CGFloat totalImgH = height - 64-chooseY-nextBtnH-2*paddingY;
+        
+        if (choose.isPic) {      //图片
+            CGFloat imgPaddingY = 20*scaleNumberY;
+            CGFloat imgPaddingX = paddingX;
+            int maxRow = 2;//图片匹配题：一页最多2行图片
+            int maxCol = 2;//最多两列
+            CGFloat baseImgViewWH = (totalImgH-imgPaddingY)/maxRow;
+            CGFloat thinkImgViewWH = (width-(maxCol+1)*paddingX)/maxCol;
+            CGFloat imgViewWH = MIN(thinkImgViewWH, baseImgViewWH);
+            if (imgViewWH==baseImgViewWH) {
+                imgPaddingX = (width - maxCol*imgViewWH)/(maxCol+1);
+            }
             for (int i = 0; i<choose.imageArray.count; i++) {
                 UIImageView *imageView = [[UIImageView alloc]init];
-                imageView.tag = choose.trueAnswerIndex+i;
-                CGFloat imageY = chooseY +i/columns*(imgViewWH + Padding);
-                imageView.frame = CGRectMake(i%columns*(PaddingX+imgViewWH)+PaddingX, imageY, imgViewWH, imgViewWH);
+                imageView.tag = choose.trueAnswerIndex+SelectViewBaseTag+i;
+                self.trueAnswerIndex = choose.trueAnswerIndex;
+                CGFloat imageY = chooseY +i/maxCol*(imgViewWH + imgPaddingY);
+                imageView.frame = CGRectMake(i%maxCol*(imgPaddingX+imgViewWH)+imgPaddingX, imageY, imgViewWH, imgViewWH);
                 NSURL *url = [NSURL URLWithString:choose.imageArray[i]];
                 [imageView setImageWithURL:url];
                 imageView.layer.borderWidth = 2;
@@ -242,46 +315,163 @@
                 
                 CGPoint center = CGPointMake(imgViewWH, imgViewWH);
                 UIView *colorView = [[UIView alloc]init];
-                colorView.bounds = CGRectMake(0, 0, 40, 40);
+                colorView.bounds = CGRectMake(0, 0, 40*scaleNumberY, 40*scaleNumberY);
                 colorView.backgroundColor = Color(92, 219, 85);
                 colorView.center = center;
                 colorView.transform = CGAffineTransformMakeRotation(M_PI_4);
-                colorView.hidden = YES;
+                CGFloat isRightChoiceWH = imgViewWH/2;
+                //对错图片
+                CGFloat isRightViewX = imgViewWH - isRightChoiceWH;
+                CGFloat isRightViewY = imgViewWH - isRightChoiceWH;
+                CGRect isRightViewFrame = CGRectMake(isRightViewX, isRightViewY, isRightChoiceWH, isRightChoiceWH);
+                if (flag) {
+                    if (choiceIndex!=-1&&trueIndex!=-1) {
+                        if (choiceIndex==trueIndex) {
+                            if (i==choiceIndex) {
+                                colorView.hidden = NO;
+                                UIImageView *isRightView = [[UIImageView alloc]initWithFrame:isRightViewFrame];
+                                isRightView.image = [UIImage imageNamed:@"right_choose"];
+                                [imageView addSubview:isRightView];
+                                imageView.layer.borderColor = Color(92, 219, 85).CGColor;
+                            }else
+                            {
+                                colorView.hidden = YES;
+                            }
+                        }else
+                        {
+                            if (i==choiceIndex) {
+                                colorView.hidden = NO;
+                                UIImageView *isRightView = [[UIImageView alloc]initWithFrame:isRightViewFrame];
+                                isRightView.image = [UIImage imageNamed:@"wrong_choose"];
+                                [imageView addSubview:isRightView];
+                                imageView.layer.borderColor = Color(92, 219, 85).CGColor;
+                            }else if (i==trueIndex)
+                            {
+                                colorView.hidden = YES;
+                                UIImageView *isRightView = [[UIImageView alloc]initWithFrame:isRightViewFrame];
+                                isRightView.image = [UIImage imageNamed:@"right_choose"];
+                                [imageView addSubview:isRightView];
+                            }else
+                            {
+                                colorView.hidden = YES;
+                                UIImageView *isRightView = [[UIImageView alloc]initWithFrame:isRightViewFrame];
+                                isRightView.image = [UIImage imageNamed:@"wrong_choose"];
+                                [imageView addSubview:isRightView];
+                            }
+                        }
+                    }
+                }else
+                {
+                    colorView.hidden = YES;
+                }
                 imageView.clipsToBounds = YES;
                 [imageView addSubview:colorView];
                 
-                imageView.userInteractionEnabled = YES;
+                imageView.userInteractionEnabled = !flag;
                 UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(tapToSelectView:)];
                 [imageView addGestureRecognizer:tap];
                 [view addSubview:imageView];
             }
-        }else
+        }else     //文字
         {
+            CGFloat textPaddingX = 20*scaleNumberY;
+            CGFloat textPaddingY = 16*scaleNumberY;
+            int maxRow = 4;//图片匹配题：一页最多4行图片
+            int maxCol = 1;//最多1列
+            
+            CGFloat baseTextViewH = (totalImgH-(maxRow-1)*textPaddingY)/maxRow;
+            CGFloat thinkTextViewH = 60*scaleNumberY;
+            
+            CGFloat textViewH = MIN(baseTextViewH, thinkTextViewH);
+            CGFloat textViewW = width-(maxCol+1)*textPaddingX;
+            
             for (int j = 0; j<choose.textArray.count; j++) {
-                UILabel *choiceLabel = [[UILabel alloc]initWithFrame:CGRectMake(PaddingX, chooseY+j*(ChoiceLabelH+Padding), KScreenWidth-2*PaddingX, ChoiceLabelH)];
-                [self setAttributedTextForLabel:choiceLabel withTextString:choose.textArray[j] textColor:[UIColor whiteColor] font:[UIFont boldSystemFontOfSize:18]];
+                UILabel *choiceLabel = [[UILabel alloc]initWithFrame:CGRectMake(textPaddingX, chooseY+j*(textViewH+textPaddingY), textViewW, textViewH)];
+                [self setAttributedTextForLabel:choiceLabel withTextString:choose.textArray[j] textColor:[UIColor whiteColor] font:[UIFont boldSystemFontOfSize:17*scaleNumberY]];
                 choiceLabel.backgroundColor = Color(168, 168, 168);
-                choiceLabel.tag = choose.trueAnswerIndex + j;
-                
-                choiceLabel.userInteractionEnabled = YES;
+                choiceLabel.tag = choose.trueAnswerIndex + SelectViewBaseTag+j;
+                self.trueAnswerIndex = choose.trueAnswerIndex;
+                //对错图片
+                CGFloat isRightChoiceWH = textViewH;
+                CGFloat isRightViewX = width-2*textPaddingX - isRightChoiceWH;
+                CGRect isRightViewFrame = CGRectMake(isRightViewX, 0, isRightChoiceWH, isRightChoiceWH);
+                if (flag) {
+                    if (choiceIndex!=-1&&trueIndex!=-1) {
+                        if (choiceIndex==trueIndex) {
+                            if (j==choiceIndex) {
+                                UIImageView *isRightView = [[UIImageView alloc]initWithFrame:isRightViewFrame];
+                                isRightView.image = [UIImage imageNamed:@"right_choose"];
+                                [choiceLabel addSubview:isRightView];
+                                choiceLabel.backgroundColor = Color(92, 219, 85);
+                            }else
+                            {
+                                choiceLabel.backgroundColor = Color(168, 168, 168);
+                            }
+                        }else
+                        {
+                            if (j==choiceIndex) {
+                                UIImageView *isRightView = [[UIImageView alloc]initWithFrame:isRightViewFrame];
+                                isRightView.image = [UIImage imageNamed:@"wrong_choose"];
+                                [choiceLabel addSubview:isRightView];
+                                choiceLabel.backgroundColor = Color(92, 219, 85);
+                            }else if (j==trueIndex)
+                            {
+                                UIImageView *isRightView = [[UIImageView alloc]initWithFrame:isRightViewFrame];
+                                isRightView.image = [UIImage imageNamed:@"right_choose"];
+                                [choiceLabel addSubview:isRightView];
+                                choiceLabel.backgroundColor = Color(168, 168, 168);
+                            }else
+                            {
+                                UIImageView *isRightView = [[UIImageView alloc]initWithFrame:isRightViewFrame];
+                                isRightView.image = [UIImage imageNamed:@"wrong_choose"];
+                                [choiceLabel addSubview:isRightView];
+                                choiceLabel.backgroundColor = Color(168, 168, 168);
+                            }
+                        }
+                    }
+                }else
+                {
+                    choiceLabel.backgroundColor = Color(168, 168, 168);
+                }
+                choiceLabel.userInteractionEnabled = !flag;
                 UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(tapToSelectView:)];
                 [choiceLabel addGestureRecognizer:tap];
                 [view addSubview:choiceLabel];
             }
         }
-    } else if ([type isEqualToString:@"img_matching"]){
+    }
+    else if ([type isEqualToString:@"img_matching"]){
+        //图片匹配题
         NDMatchModel *match = modelDict[type];
-        UIButton *playBtn = [self isCreatePlayBtnByMp3Url:match.mp3Url withFrame:playBtnFrame playImage:@"playMp340" pauseImage:nil];
+        UIButton *playBtn = [self isCreatePlayBtnByMp3Url:match.mp3Url withFrame:playBtnFrame playImage:@"playMp340"];
         if (playBtn!=nil) {
-            textX += PlayBtnWH + 5;
+            [self.answerMp3Dict setObject:match.mp3Url forKey:@(index)];
+            textX += playBtnWH + 3*scaleNumberX;
             [view addSubview:playBtn];
+        }else
+        {
+            [self.answerMp3Dict setObject:@"0" forKey:@(index)];
         }
-        CGFloat textW = KScreenWidth - textX - PaddingX;
-        UILabel *tipLabel = [self tipLabelWithFrame:CGRectMake(textX, textY, textW, PlayBtnWH) labelText:match.tipLabelText];
+        CGFloat textW = width - textX - paddingX/5;
+        UILabel *tipLabel = [self tipLabelWithFrame:CGRectMake(textX, textY, textW, playBtnWH) labelText:match.tipLabelText];
+        [tipLabel setFont:[UIFont systemFontOfSize:15*scaleNumberY]];
         [view addSubview:tipLabel];
-        CGFloat chooseY = CGRectGetMaxY(tipLabel.frame) + Padding;
+        CGFloat chooseY = CGRectGetMaxY(tipLabel.frame) + paddingY/2;
+        
+        CGFloat nextBtnH = 40*scaleNumberY;
+        CGFloat totalImgH = height - 64-chooseY-nextBtnH-2*paddingY;
+        CGFloat imgPaddingY = 16*scaleNumberY;
+        int maxRow = 4;//图片匹配题：一页最多4行图片
+        int maxCol = 2;//最多两列
+        CGFloat baseImgH = (totalImgH-(maxRow-1)*imgPaddingY)/maxRow;
+        CGFloat baseImgW = 300*baseImgH/255;
+        CGFloat matchImgH = baseImgH*6/7;
+        CGFloat matchImgW = baseImgW*6/7;
+        CGFloat imgPaddingX = (width-baseImgW-matchImgW)/(maxCol+1);
+        CGFloat isRightMatchWH = 32*scaleNumberY;
+        
         for (int m = 0; m<match.baseImgArr.count; m++) {
-            UIImageView *baseImageView = [[UIImageView alloc]initWithFrame:CGRectMake(MatchPaddingX, chooseY+m*(BaseImgH+MatchPaddingY), BaseImgW, BaseImgH)];
+            UIImageView *baseImageView = [[UIImageView alloc]initWithFrame:CGRectMake(imgPaddingX, chooseY+m*(baseImgH+imgPaddingY), baseImgW, baseImgH)];
             [self addShadowForView:baseImageView withColor:Color(168, 168, 168)];
             NSURL *baseImgUrl = [NSURL URLWithString:match.baseImgArr[m]];
             [baseImageView setImageWithURL:baseImgUrl];
@@ -290,15 +480,19 @@
             [self.baseImgArray addObject:baseImageView];
             [self.baseIsEmptyIndexes addObject:@(1)];
             [self.baseFrameArray addObject:[NSValue valueWithCGRect:baseImageView.frame]];
+            if (flag) {
+                //如果是答案，左边view旋转
+                [self addAnimationForView:baseImageView withScaleX:0.7 scaleY:0.7 rotate:-M_PI/6];
+            }
         }
         for (int n = 0; n<match.matchImgArr.count; n++) {
             UIView *matchView = [[UIView alloc]init];
             matchView.backgroundColor = [UIColor whiteColor];
-            matchView.bounds = CGRectMake(0, 0, MatchImgW, MatchImgH);
+            matchView.bounds = CGRectMake(0, 0, matchImgW, matchImgH);
             CGRect baseFrame = [self.baseFrameArray[n] CGRectValue];
             CGFloat baseCenterX = baseFrame.origin.x + baseFrame.size.width/2;
             CGFloat baseCenterY = baseFrame.origin.y + baseFrame.size.height/2;
-            CGFloat centerX = baseCenterX + (BaseImgW+MatchImgW)/2 + MatchPaddingX;
+            CGFloat centerX = baseCenterX + (baseImgW+matchImgW)/2 + imgPaddingX;
             matchView.center = CGPointMake(centerX, baseCenterY);
             
             [self.matchFrameArray addObject:[NSValue valueWithCGRect:matchView.frame]];
@@ -306,52 +500,76 @@
             [view addSubview:matchView];
             
             UIImageView *matchImageView = [[UIImageView alloc]initWithFrame:matchView.frame];
-            matchImageView.tag = n;
+            
             NSURL *matchImgUrl = [NSURL URLWithString:match.matchImgArr[n]];
+            matchImageView.tag = n;
+            
             [matchImageView setImageWithURL:matchImgUrl];
             [self.matchImgArray addObject:matchImageView];
             [self.matchTransIndexes addObject:@(0)];
             
-            matchImageView.userInteractionEnabled = YES;
+            matchImageView.userInteractionEnabled = !flag;
             UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc]initWithTarget:self action:@selector(panViewToMatchOtherView:)];
             pan.maximumNumberOfTouches = 1;
             [matchImageView addGestureRecognizer:pan];
             [view addSubview:matchImageView];
+            //图片匹配答案显示
+            if (flag&&answer!=nil) {
+                if ([answer isKindOfClass:[NSDictionary class]]) {
+                    NSDictionary *answerDict = answer;
+                    NSInteger valueIndex = [[answerDict objectForKey:@(n)] integerValue];
+                    CGRect valueFrame = [self.baseFrameArray[valueIndex] CGRectValue];
+                    if (!CGRectEqualToRect(valueFrame, CGRectZero)) {
+                        UIImageView *matchImgView = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, matchImgW, matchImgH)];
+                        matchImgView.frame = [self getNewFrameForView:matchImgView ByFrame:valueFrame];
+                        NSURL *matchImgUrl = [NSURL URLWithString:match.matchImgArr[n]];
+                        [matchImgView setImageWithURL:matchImgUrl];
+                        
+                        CGFloat isRightViewX = (matchImgW-isRightMatchWH)/2;
+                        UIImageView *isRightView = [[UIImageView alloc]initWithFrame:CGRectMake(isRightViewX, -isRightMatchWH/2, isRightMatchWH, isRightMatchWH)];
+                        if (n==valueIndex) {
+                            isRightView.image = [UIImage imageNamed:@"right_match"];
+                        }else{
+                            isRightView.image = [UIImage imageNamed:@"wrong_match"];
+                        }
+                        [matchImgView addSubview:isRightView];
+                        [view addSubview:matchImgView];
+                        [self addAnimationForView:matchImgView withScaleX:0.7 scaleY:0.7 rotate:M_PI/6];
+                    }
+                }
+            }
         }
     }
-//    else if ([type isEqualToString:@"filling"]){
-////        NDFillingModel *filling = modelDict[type];
-//        
-//    }else if ([type isEqualToString:@"word_matching"]){
-////        NDWordModel *word = modelDict[type];
-//        
-//    }
-    UIButton *nextBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-    CGFloat nextBtnY = KScreenHeight - NextBtnH - 64 - Padding;
-    nextBtn.frame = CGRectMake(PaddingX, nextBtnY, KScreenWidth-2*PaddingX, NextBtnH);
-    nextBtn.tag = index;
-    NSString *titleStr = (index==self.exerciseArray.count-1)?@"提交":@"下一题";
-    [nextBtn setTitle:titleStr forState:UIControlStateNormal];
-    [nextBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [nextBtn addTarget:self action:@selector(nextViewForExercise:) forControlEvents:UIControlEventTouchUpInside];
-    [nextBtn setBackgroundColor:Color(168, 168, 168)];
-    nextBtn.layer.cornerRadius = 5;
-    nextBtn.enabled = NO;
-    [view addSubview:nextBtn];
-    self.nextButton = nextBtn;
-    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(observingIsChooseOver:) name:@"matchLineDict" object:nil];
+    if (!flag) {
+        UIButton *nextBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        CGFloat nextBtnH = 40*scaleNumberY;
+        CGFloat nextBtnY = height - nextBtnH - 64 - paddingY;
+        nextBtn.frame = CGRectMake(paddingX, nextBtnY, width-2*paddingX, nextBtnH);
+        NSString *titleStr = (index==self.exerciseArray.count-1)?@"提交":@"下一题";
+        [nextBtn setTitle:titleStr forState:UIControlStateNormal];
+        [nextBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [nextBtn setBackgroundColor:Color(168, 168, 168)];
+        nextBtn.layer.cornerRadius = 5;
+        nextBtn.enabled = NO;
+        nextBtn.tag = index;
+        [nextBtn addTarget:self action:@selector(nextViewForExercise:) forControlEvents:UIControlEventTouchUpInside];
+        [view addSubview:nextBtn];
+        self.nextButton = nextBtn;
+        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(observingIsChooseOver:) name:@"matchLineDict" object:nil];
+        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(observingIsChooseOver:) name:@"userIndex" object:nil];
+    }
     return view;
 }
+#pragma mark - 拖拽UIImageView进行匹配
 - (void)panViewToMatchOtherView:(UIPanGestureRecognizer *)panGesture
 {
     NSInteger index = panGesture.view.tag;
-    
     [panGesture.view.superview bringSubviewToFront:panGesture.view];
     CGPoint panPoint = [panGesture locationInView:self.view];
     panGesture.view.center = panPoint;
+    
     if (panGesture.state==UIGestureRecognizerStateEnded) {
         NSInteger count = self.baseFrameArray.count;
-        self.nextButton.tag = count;
         for (int i = 0;i<count;i++) {
             CGRect baseFrame = [self.baseFrameArray[i] CGRectValue];
             if (CGRectContainsPoint(baseFrame, panPoint)) {
@@ -457,11 +675,14 @@
         }
     }
 }
+#pragma mark - 观察用户是否做完本页题目
 - (void)observingIsChooseOver:(NSNotification *)notify
 {
-    NSDictionary *dict = notify.userInfo[@"matchLineDict"];
-    NSInteger count = dict.count;
-    if (count==self.nextButton.tag) {
+    NSDictionary *matchDict = notify.userInfo[@"matchLineDict"];
+    NSInteger matchCount = matchDict.count;
+    NSInteger chooseIndex = [notify.userInfo[@"userIndex"] integerValue];
+    if (matchCount==self.baseImgArray.count||chooseIndex>=SelectViewBaseTag) {
+        self.choiceIndex = chooseIndex;
         self.nextButton.enabled = YES;
         [self.nextButton setBackgroundColor:Color(234, 103, 37)];
     } else {
@@ -469,6 +690,7 @@
         [self.nextButton setBackgroundColor:Color(168, 168, 168)];
     }
 }
+#pragma mark - 为View添加阴影
 - (void)addShadowForView:(UIView *)view withColor:(UIColor *)shadowColor
 {
     view.layer.shadowColor = shadowColor.CGColor;
@@ -483,7 +705,6 @@
     CGFloat viewY = CGRectGetMaxY(frame) - viewSize.height;
     return CGRectMake(viewX, viewY, viewSize.width, viewSize.height);
 }
-
 - (void)addAnimationForView:(UIView *)view withScaleX:(CGFloat)scaleX scaleY:(CGFloat)scaleY rotate:(CGFloat)angle
 {
     CABasicAnimation *basic1 = [CABasicAnimation animationWithKeyPath:@"transform.scale.x"];
@@ -503,6 +724,7 @@
     group.fillMode = kCAFillModeForwards;
     [view.layer addAnimation:group forKey:nil];
 }
+#pragma mark - 选择题 手势调用方法
 - (void)tapToSelectView:(UITapGestureRecognizer *)tapGesture
 {
     if (self.selectedView==nil) {
@@ -510,7 +732,7 @@
     }
     BOOL isChanged = NO;
     UIView *view = tapGesture.view;
-//    NSInteger index = view.tag;
+    NSInteger chooseIndex = view.tag;
     isChanged = (self.selectedView==view)? NO:YES;
     
     if ([view isKindOfClass:[UIImageView class]]) {
@@ -530,39 +752,170 @@
             self.selectedView.backgroundColor = Color(168, 168, 168);
         }
     }
+    [[NSNotificationCenter defaultCenter]postNotificationName:@"userIndex" object:nil userInfo:@{@"userIndex":@(chooseIndex)}];
     self.selectedView = view;
 }
+#pragma mark - 点击创建“下一题”界面
 - (void)nextViewForExercise:(UIButton *)nextBtn
 {
+    NSInteger nextIndex = nextBtn.tag+1;
+    
+    self.currentLineDict = [NSDictionary dictionaryWithDictionary:self.matchLineDict];
+    if (self.choiceIndex>=SelectViewBaseTag) {
+        AnswerChoiceModel *choiceModel = [[AnswerChoiceModel alloc]init];
+        choiceModel.userIndex = self.choiceIndex - SelectViewBaseTag-self.trueAnswerIndex;
+        choiceModel.trueIndex = self.trueAnswerIndex;
+        choiceModel.isRight = choiceModel.userIndex==choiceModel.trueIndex;
+        [self.answerArray addObject:choiceModel];
+    }else if (self.currentLineDict.count==self.baseImgArray.count&&self.baseImgArray.count!=0) {
+        [self.answerArray addObject:self.currentLineDict];
+    }
     [_exerciseView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
     [_exerciseView removeFromSuperview];
     _exerciseView = nil;
-    NSInteger nextIndex = nextBtn.tag+1;
+    [self.nextButton removeFromSuperview];
+    self.nextButton = nil;
+    [self.baseImgArray removeAllObjects];
+    [self.baseFrameArray removeAllObjects];
+    [self.baseIsEmptyIndexes removeAllObjects];
+    [self.matchImgArray removeAllObjects];
+    [self.matchFrameArray removeAllObjects];
+    [self.matchTransIndexes removeAllObjects];
+    [self.matchLineDict removeAllObjects];
+    
     if (nextIndex<self.exerciseArray.count) {
-        _exerciseView = [self createViewWithIndex:nextIndex];
+        CGRect viewFrame = CGRectMake(self.cardDict.count*KScreenWidth, 0, KScreenWidth, KScreenHeight);
+        _exerciseView = [self createViewWithIndex:nextIndex viewFrame:viewFrame width:KScreenWidth height:KScreenHeight isResultFlag:NO userAnswer:nil];
+        
     }else if (nextIndex==self.exerciseArray.count)
     {
-        UIView *resultView = [[UIView alloc]initWithFrame:CGRectMake(self.cardDict.count*KScreenWidth+10, 10, KScreenWidth/2, KScreenHeight/2)];
-        resultView.backgroundColor = [UIColor blueColor];
+        CGRect frame = CGRectMake(self.cardDict.count*KScreenWidth, 0, KScreenWidth, KScreenHeight);
+        AnswerResultView *resultView = [[AnswerResultView alloc]initWithFrame:frame];
+        resultView.delegate = self;
+        NSInteger rightCount = 0;
+        NSInteger wrongCount = 0;
+        for (int i=0; i<self.answerArray.count; i++) {
+            id answer = self.answerArray[i];
+            if ([answer isKindOfClass:[AnswerChoiceModel class]]) {
+                AnswerChoiceModel *model = answer;
+                if (model.isRight) {
+                    rightCount++;
+                }else
+                {
+                    wrongCount++;
+                }
+            } else if ([answer isKindOfClass:[NSDictionary class]]){
+                for (NSNumber *number in [answer allKeys]) {
+                    if (![[answer objectForKey:number]isEqual:number]) {
+                        wrongCount++;
+                        break;
+                    } else if([[answer allKeys]indexOfObject:number]==([answer count]-1)){
+                        rightCount++;
+                    }
+                }
+            }
+        }
+        UserModel *model = [NSKeyedUnarchiver unarchiveObjectWithFile:NDModelSavePath];
+        NSString *userName = (model==nil||model.status==1)?@"我(未登录)":model.nickName;
+        CGFloat score = rightCount*100.0/self.answerArray.count;
+        NSString *scoreStr = [NSString stringWithFormat:@"%.0f",score];
+        resultView.resultScore = scoreStr;
+        resultView.rightCount = rightCount;
+        resultView.wrongCount = wrongCount;
+        resultView.userName = userName;
+        [resultView setNeedsDisplay];
+        [resultView createUserScoreUI];
+        resultView.backgroundColor = [UIColor whiteColor];
         _exerciseView = resultView;
     }
     [_scrollView addSubview:_exerciseView];
 }
-- (UIButton *)isCreatePlayBtnByMp3Url:(NSString *)mp3Url withFrame:(CGRect)frame playImage:(NSString *)playImage pauseImage:(NSString *)pauseImage
+#pragma mark - AnswerResultViewDelegate代理方法
+- (void)resultViewCilckToViewResult:(AnswerResultView *)resultView
+{
+    UIView *view = [[UIView alloc]initWithFrame:resultView.bounds];
+    view.backgroundColor = Color(234, 103, 37);
+    _resultDetailView = view;
+    [resultView addSubview:_resultDetailView];
+    CGFloat width = KScreenWidth-2*LimitViewX;
+    CGFloat height = KScreenHeight-64-LimitViewX-LimitViewY;
+    UIScrollView *scrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(LimitViewX, LimitViewY, width, height)];
+    
+    CGFloat crossBtnX = CGRectGetMaxX(scrollView.frame)-CrossBtnWH;
+    CGFloat crossBtnY = CGRectGetMinY(scrollView.frame)-CrossBtnWH;
+    CGRect crossBtnFrame = CGRectMake(crossBtnX, crossBtnY, CrossBtnWH, CrossBtnWH);
+    UIButton *crossBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    crossBtn.frame = crossBtnFrame;
+    [crossBtn setImage:[UIImage imageNamed:@"close"] forState:UIControlStateNormal];
+    [crossBtn addTarget:self action:@selector(cancelShowResultView:) forControlEvents:UIControlEventTouchUpInside];
+    [resultView addSubview:crossBtn];
+    
+    for (int i = 0; i<self.exerciseArray.count; i++) {
+        CGRect viewFrame = CGRectMake(i*width, 0, width, height);
+        UIView *subView = [self createViewWithIndex:i viewFrame:viewFrame width:width height:height isResultFlag:YES userAnswer:self.answerArray[i]];
+        [scrollView addSubview:subView];
+    }
+    scrollView.backgroundColor = Color(234, 103, 37);
+    scrollView.contentSize = CGSizeMake(self.exerciseArray.count*width, 0);
+    scrollView.pagingEnabled = YES;
+    scrollView.tag = ResultScrollViewTag;
+    scrollView.showsHorizontalScrollIndicator = YES;
+    scrollView.delegate = self;
+    [view addSubview:scrollView];
+}
+- (void)resultViewCilckToShareInfo:(AnswerResultView *)resultView
+{
+    [UMSocialData defaultData].extConfig.wechatSessionData.url = @"http://baidu.com";
+    [UMSocialData defaultData].extConfig.wechatTimelineData.url = @"http://baidu.com";
+    [UMSocialData defaultData].extConfig.wechatSessionData.title = self.title;
+    [UMSocialData defaultData].extConfig.wechatTimelineData.title = self.title;
+    NSString *infoString = [NSString stringWithFormat:@"在 %@ 中我的得分是：%@",self.title,resultView.resultScore];
+    //分享png、jpg图片
+    [UMSocialSnsService presentSnsIconSheetView:self appKey:KUMengAppKeyString shareText:infoString shareImage:[UIImage captureImageWithView:resultView] shareToSnsNames:@[UMShareToSina,UMShareToWechatSession,UMShareToWechatTimeline] delegate:nil];
+}
+- (void)resultViewCilckToReturn:(AnswerResultView *)resultView
+{
+    [self.navigationController popViewControllerAnimated:YES];
+}
+- (void)cancelShowResultView:(UIButton *)crossButton
+{
+    [crossButton removeFromSuperview];
+    crossButton = nil;
+    [_resultDetailView removeFromSuperview];
+    _resultDetailView = nil;
+}
+#pragma mark - 根据mp3Url决定是否创建播放音频按钮
+- (UIButton *)isCreatePlayBtnByMp3Url:(NSString *)mp3Url withFrame:(CGRect)frame playImage:(NSString *)playImage
 {
     if (![mp3Url isEqualToString:@""]&&mp3Url.length!=0) {
         UIButton *playBtn = [UIButton buttonWithType:UIButtonTypeCustom];
         playBtn.frame = frame;
         [playBtn setImage:[UIImage imageNamed:playImage] forState:UIControlStateNormal];
-        [playBtn addTarget:self action:@selector(playMp3:) forControlEvents:UIControlEventTouchUpInside];
+        self.playMp3Url = mp3Url;
+        [playBtn addTarget:self action:@selector(clickToPlayMp3:) forControlEvents:UIControlEventTouchUpInside];
         return playBtn;
     }
     return nil;
 }
+- (void)clickToPlayMp3:(UIButton *)button
+{
+    [self playMp3ByString:self.playMp3Url];
+}
+- (void)playMp3ByString:(NSString *)mp3String
+{
+    if (_player) {
+        _player = nil;
+    }
+    if (![mp3String isEqualToString:@""]&&mp3String.length!=0) {
+        NSURL *mp3Url = [NSURL URLWithString:mp3String];
+        _player = [[AVPlayer alloc]initWithURL:mp3Url];
+        [_player play];
+    }
+}
+#pragma mark - 创建并返回UILabel
 - (UILabel *)tipLabelWithFrame:(CGRect)frame labelText:(NSString *)text
 {
     UILabel *tipLabel = [[UILabel alloc]initWithFrame:frame];
-    [tipLabel setFont:[UIFont systemFontOfSize:16*ScaleValue]];
     tipLabel.numberOfLines = 0;
     tipLabel.text = text;
     return tipLabel;
@@ -574,6 +927,7 @@
     label.textAlignment = NSTextAlignmentCenter;
     [label setAttributedText:attrs];
 }
+#pragma mark - 卡片 点击切换图片，播放声音
 - (void)rotateToShowBackgroundImage:(UITapGestureRecognizer *)tap
 {
     self.tapCount++;
@@ -583,7 +937,7 @@
     NSInteger index = (self.tapCount%2==1?cardArray.count - 1:0);
     [imageView setImageWithURL:[NSURL URLWithString:cardArray[index]]];
     CATransition *transition = [CATransition animation];
-    //设置样式
+    //设置翻页样式
     transition.type = @"oglFlip";
     //设置翻转的方向
     transition.subtype = (self.tapCount%2==1?kCATransitionFromRight:kCATransitionFromLeft);
@@ -595,6 +949,7 @@
         [self performSelector:@selector(initMp3PlayerWithArray:) withObject:cardArray afterDelay:1.0];
     }
 }
+#pragma mark - 请求网络数据
 - (void)requestDataWithSenceid:(NSString *)senceid completionHandler:(void(^)(NSMutableDictionary *cardDict,NSArray *exerciseArray))handler
 {
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
@@ -608,12 +963,10 @@
             NSArray *array = dict[@"content"];
             NSDictionary *contentDict = [array firstObject];
             NSString *content = contentDict[@"content"];
-            
             NSDictionary *dataDict = [NSDictionary dictionary];
-            if ([content containsString:@"card"]) {//卡片
+            if ([content containsString:@"\"type\":\"card\""]) {//卡片
                 dataDict = [self cutOffString:content WithSign:@"uniqueID"];
                 NSArray *arr = dataDict[@"testObj"];//卡片数组
-                
                 for (int j=0; j<arr.count; j++) {
                     NSArray *cardArr = [NSArray array];
                     NSDictionary *cardDict = arr[j];
@@ -625,10 +978,9 @@
                     cardArr = @[frontImg,frontMp3,backImg];
                     [self.cardDict setObject:cardArr forKey:@(j)];
                 }
-            }else if ([content containsString:@"objective"]){//题目
+            }else if ([content containsString:@"\"type\":\"objective\""]){//题目
                 dataDict = [self cutOffString:content WithSign:@"type"];
                 NSArray *dataArr = dataDict[@"data"];
-                [dataArr writeToFile:[NSString stringWithFormat:DataSavePath,@"dataArr",self.title] atomically:YES];
                 NSArray *modelArray = [NDSelectModel arrayOfModelsFromDictionaries:dataArr];
                 for (NDSelectModel *model in modelArray) {
                     NSMutableDictionary *exerciseDict = [NSMutableDictionary dictionary];
@@ -644,13 +996,6 @@
                         NDMatchModel *match = exercise;
                         [exerciseDict setObject:match forKey:type];
                     }
-//                    else if ([type isEqualToString:@"filling"]){
-//                        NDFillingModel *filling = exercise;
-//                        [exerciseDict setObject:filling forKey:type];
-//                    }else if ([type isEqualToString:@"word_matching"]){
-//                        NDWordModel *word = exercise;
-//                        [exerciseDict setObject:word forKey:type];
-//                    }
                     [self.exerciseArray addObject:exerciseDict];
                 }
             }
@@ -658,7 +1003,11 @@
         handler(self.cardDict,self.exerciseArray);
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (error) {
-            NSLog(@"error:%@",error.localizedDescription);
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"网络请求失败提示信息" message:error.localizedDescription preferredStyle:UIAlertControllerStyleAlert];
+            [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                [self dismissViewControllerAnimated:alert completion:nil];
+            }]];
+            [self presentViewController:alert animated:YES completion:nil];
         }
     }];
 }
@@ -672,7 +1021,6 @@
 - (NSDictionary *)cutOffString:(NSString *)string WithSign:(NSString *)sign
 {
     NSDictionary *dict = [NSDictionary dictionary];
-    
     NSRange headrange = [string rangeOfString:sign];
     if (headrange.location!=NSNotFound) {
         NSInteger fromIndex = headrange.location - 2;
@@ -688,17 +1036,29 @@
 }
 #pragma mark - UIScrollViewDelegate代理方法
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
-{    //  当前滚动到第几张图片
-    int index = scrollView.contentOffset.x/KScreenWidth;
-    //滚动之后如果还在当前页，则不播放音乐
-    if (self.currentPage==index) {
-        return;
-    }else
-    {
-        self.currentPage = index;
+{
+    if (scrollView.tag==BaseScrollViewTag) {
+        // 当前滚动到第几张图片
+        int index = scrollView.contentOffset.x/KScreenWidth;
+        //滚动之后如果还在当前页，则不播放音乐
+        if (self.currentPage==index) {
+            return;
+        }else
+        {
+            self.currentPage = index;
+        }
+        [_pageLabel setText:[NSString stringWithFormat:@"%d / %ld",index+1,self.cardDict.count]];
+        _cardPageView.hidden = index==self.cardDict.count;
+        NSArray *mp3Array = self.cardDict[@(index)];
+        [self initMp3PlayerWithArray:mp3Array];
+    }else if (scrollView.tag==ResultScrollViewTag){
+        CGFloat width = KScreenWidth-2*LimitViewX;
+        int index = scrollView.contentOffset.x/width;
+        NSString *currentMp3Url = [self.answerMp3Dict objectForKey:@(index)];
+        if (![currentMp3Url isEqualToString:@"0"]&&![currentMp3Url isEqualToString:@""]) {
+            self.playMp3Url = currentMp3Url;
+        }
     }
-    NSArray *mp3Array = self.cardDict[@(index)];
-    [self initMp3PlayerWithArray:mp3Array];
 }
 - (void)initMp3PlayerWithArray:(NSArray *)mp3Array
 {
@@ -706,28 +1066,31 @@
     _player = [[AVPlayer alloc]initWithURL:mp3Url];
     [_player play];
 }
-
-//根据count的值得到一组不重复的随机数0～n-1
-- (NSArray *)getNumbersOfRandoms:(NSInteger)count
+#pragma mark - 控制器销毁时释放内存
+- (void)dealloc
 {
-    NSMutableArray *array = [NSMutableArray array];
-    NSMutableArray *compareArr = [NSMutableArray arrayWithObject:@(-1)];
-    
-    for (int i = 0; i<count; i++) {
-        int random = arc4random() % count ;
-        BOOL flag = YES;
-        for (int j = 0; j<compareArr.count; j++) {
-            if (random == [compareArr[j] intValue]) {
-                flag = NO;
-                i--;
-                break;
-            }
-        }
-        if (flag==YES) {
-            [array addObject:@(random)];
-            [compareArr addObject:@(random)];
-        }
+    if (_cardPageView) {
+        [_cardPageView removeFromSuperview];//移除card页面的页数控件
     }
-    return array;
+    [self.baseImgArray removeAllObjects];
+    [self.baseFrameArray removeAllObjects];
+    [self.baseIsEmptyIndexes removeAllObjects];
+    
+    [self.matchImgArray removeAllObjects];
+    [self.matchFrameArray removeAllObjects];
+    [self.matchTransIndexes removeAllObjects];
+    [self.matchLineDict removeAllObjects];
+    
+    [self.cardDict removeAllObjects];
+    [self.exerciseArray removeAllObjects];
+    
+    [self.answerArray removeAllObjects];
+    [self.answerMp3Dict removeAllObjects];
+    self.currentLineDict = nil;
+    
+    [_scrollView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    _scrollView = nil;
+    _player = nil;
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 @end

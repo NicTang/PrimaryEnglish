@@ -13,7 +13,6 @@
 #import "NDDetailModel.h"
 #import "NDDetailCell.h"
 #import "DetailHeaderView.h"
-#import "UIImage+NewImage.h"
 #import "BookReaderController.h"//课本点读
 #import "CoursesPracticeController.h"//词汇练习
 
@@ -45,8 +44,6 @@
 - (void)createUI
 {
     self.view.backgroundColor = [UIColor whiteColor];
-    [self.navigationController.navigationBar setBackgroundImage:[UIImage createImageWithColor:Color(234, 103, 37)] forBarMetrics:UIBarMetricsDefault];
-    [self.navigationController.navigationBar setShadowImage:[UIImage createImageWithColor:[UIColor clearColor]]];
     
     _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, KScreenWidth, KScreenHeight) style:UITableViewStyleGrouped];
     _tableView.contentInset = UIEdgeInsetsMake(0, 0, 30, 0);
@@ -76,7 +73,11 @@
         
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         if (error) {
-            NSLog(@"error :%@",error.localizedDescription);
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"网络请求失败提示信息" message:error.localizedDescription preferredStyle:UIAlertControllerStyleAlert];
+            [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                [self dismissViewControllerAnimated:alert completion:nil];
+            }]];
+            [self presentViewController:alert animated:YES completion:nil];
         }
     }];
 }
@@ -97,9 +98,6 @@
 {
     NDDetailModel *detailModel = self.cellDataArray[indexPath.row];
     NSInteger selIndex = indexPath.row;
-//    __weak typeof(detailModel) weakModel = detailModel;
-//    __weak typeof(selIndex) weakSelIndex = selIndex;
-
     //导航栏返回按钮文字为空
     self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc]initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:nil];
     if ([self.title containsString:@"课本点读"]) {
@@ -109,7 +107,7 @@
         readerVc.unitsArray = self.cellDataArray;
         //接收请求单元详细数据的参数
         readerVc.senceid = detailModel.senceid;
-        NSLog(@"unitVc.senceid:%@",readerVc.senceid);
+        
         //设置导航栏标题
         readerVc.title = detailModel.title;
         readerVc.courseID = self.courseID;
@@ -137,10 +135,17 @@
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
-    return 220;
+    return 220*ScaleValueY;
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return 120;
+    return 120*ScaleValueY;
+}
+#pragma mark - 控制器销毁时释放内存
+- (void)dealloc
+{
+    [self.tableView removeFromSuperview];
+    self.tableView = nil;
+    [self.cellDataArray removeAllObjects];
 }
 @end
