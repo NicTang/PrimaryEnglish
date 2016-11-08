@@ -78,16 +78,37 @@
 }
 - (void)createUserScoreUI
 {
-    UILabel *nameLabel = [self createLabelByBaseFrame:CGRectZero withMargin:MarginY labelHeight:NameLabelH TextString:[NSString stringWithFormat:@"%@ 同学",self.userName] fontSize:ScoreFontSize];
+    NSString *name = [NSString stringWithFormat:@"%@ 同学",self.userName];
+    NSRange nameRange = [name rangeOfString:self.userName];
+    UILabel *nameLabel = [self createLabelByBaseFrame:CGRectZero withMargin:MarginY labelHeight:NameLabelH TextString:name fontSize:ScoreFontSize];
+    NSMutableAttributedString *nameAttri = [[NSMutableAttributedString alloc]initWithAttributedString:nameLabel.attributedText];
+    [nameAttri addAttribute:NSForegroundColorAttributeName value:Color(255, 0, 0) range:nameRange];
+    [nameAttri addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:ScoreFontSize*1.5] range:nameRange];
+    [nameLabel setAttributedText:nameAttri];
     [self addSubview:nameLabel];
     
-    UILabel *scoreLabel = [self createLabelByBaseFrame:nameLabel.frame withMargin:MarginScoreY labelHeight:NumberLabelH TextString:[NSString stringWithFormat:@"你的得分 %@",self.resultScore] fontSize:NumberFontSize];
+    NSString *score = [NSString stringWithFormat:@"你的得分 %@",self.resultScore];
+    NSRange scoreRange = [score rangeOfString:self.resultScore];
+    UILabel *scoreLabel = [self createLabelByBaseFrame:nameLabel.frame withMargin:MarginScoreY labelHeight:NumberLabelH TextString:score fontSize:NumberFontSize];
+    NSMutableAttributedString *scoreAttri = [[NSMutableAttributedString alloc]initWithAttributedString:scoreLabel.attributedText];
+    [scoreAttri addAttributes:@{NSForegroundColorAttributeName:[UIColor redColor],NSFontAttributeName:[UIFont systemFontOfSize:NumberFontSize*1.5]} range:scoreRange];
+    [scoreLabel setAttributedText:scoreAttri];
     [self addSubview:scoreLabel];
     
-    UILabel *rightLabel = [self createLabelByBaseFrame:scoreLabel.frame withMargin:MarginNumberY labelHeight:NumberLabelH TextString:[NSString stringWithFormat:@"做对了 %ld 道题",self.rightCount] fontSize:NumberFontSize];
+    NSString *right = [NSString stringWithFormat:@"做对了 %ld 道题",self.rightCount];
+    NSRange rightRange = [right rangeOfString:[NSString stringWithFormat:@"%ld",self.rightCount]];
+    UILabel *rightLabel = [self createLabelByBaseFrame:scoreLabel.frame withMargin:MarginNumberY labelHeight:NumberLabelH TextString:right fontSize:NumberFontSize];
+    NSMutableAttributedString *rightAttri = [[NSMutableAttributedString alloc]initWithAttributedString:rightLabel.attributedText];
+    [rightAttri addAttributes:@{NSForegroundColorAttributeName:[UIColor redColor],NSFontAttributeName:[UIFont systemFontOfSize:NumberFontSize*1.5]} range:rightRange];
+    [rightLabel setAttributedText:rightAttri];
     [self addSubview:rightLabel];
     
+    NSString *wrong = [NSString stringWithFormat:@"做对了 %ld 道题",self.wrongCount];
+    NSRange wrongRange = [wrong rangeOfString:[NSString stringWithFormat:@"%ld",self.wrongCount]];
     UILabel *wrongLabel = [self createLabelByBaseFrame:rightLabel.frame withMargin:MarginNumberY labelHeight:NumberLabelH TextString:[NSString stringWithFormat:@"做错了 %ld 道题",self.wrongCount] fontSize:NumberFontSize];
+    NSMutableAttributedString *wrongAttri = [[NSMutableAttributedString alloc]initWithAttributedString:wrongLabel.attributedText];
+    [wrongAttri addAttributes:@{NSForegroundColorAttributeName:[UIColor redColor],NSFontAttributeName:[UIFont systemFontOfSize:NumberFontSize*1.5]} range:wrongRange];
+    [wrongLabel setAttributedText:wrongAttri];
     [self addSubview:wrongLabel];
     
     CGFloat answerY = CGRectGetMaxY(wrongLabel.frame) + MarginAnswerY;

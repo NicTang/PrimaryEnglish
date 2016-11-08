@@ -95,7 +95,8 @@
     layout.minimumLineSpacing = LineSpacing;
     layout.minimumInteritemSpacing = ItemSpacing;
     layout.itemSize = CGSizeMake(ItemWidth, ItemHeight);
-    layout.sectionInset = UIEdgeInsetsMake(0, 17*ScaleValueX, 60*ScaleValueY, 17*ScaleValueX);
+    layout.sectionInset = UIEdgeInsetsMake(0, ItemSpacing, 64*ScaleValueY, ItemSpacing);
+//    layout.sectionInset = UIEdgeInsetsMake(0, 17*ScaleValueX, 60*ScaleValueY, 17*ScaleValueX);
     layout.scrollDirection = UICollectionViewScrollDirectionVertical;
     
     _collectionView = [[UICollectionView alloc]initWithFrame:CGRectMake(0, 0, KScreenWidth, KScreenHeight-64) collectionViewLayout:layout];

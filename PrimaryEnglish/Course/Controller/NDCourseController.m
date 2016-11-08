@@ -6,7 +6,7 @@
 //  Copyright © 2016年 Nic. All rights reserved.
 //
 
-#define LineSpacing 30*ScaleValueY
+#define LineSpacing 20*ScaleValueY
 #define ItemSpacing 20*ScaleValueX
 #define ItemWidth (KScreenWidth - 3*ItemSpacing)/2
 #define ItemHeight 238*ItemWidth/160
@@ -56,7 +56,8 @@
     layout.minimumLineSpacing = LineSpacing;
     layout.minimumInteritemSpacing = ItemSpacing;
     layout.itemSize = CGSizeMake(ItemWidth, ItemHeight);
-    layout.sectionInset = UIEdgeInsetsMake(20*ScaleValueY, 20*ScaleValueX, 60*ScaleValueY, 20*ScaleValueX);
+    layout.sectionInset = UIEdgeInsetsMake(LineSpacing, ItemSpacing, 60*ScaleValueY, ItemSpacing);
+//    layout.sectionInset = UIEdgeInsetsMake(20*ScaleValueY, 20*ScaleValueX, 60*ScaleValueY, 20*ScaleValueX);
     layout.scrollDirection = UICollectionViewScrollDirectionVertical;
     //导航栏不透明，占有一定的frame
 //    self.navigationController.navigationBar.translucent = NO;

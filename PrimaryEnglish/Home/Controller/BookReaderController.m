@@ -93,7 +93,7 @@
         }];
     }
 }
-- (void)showImageWithDict:(NSDictionary *)imgDict play:(NSDictionary *)mp3Dict senceid:(NSString *)senceid handler:(void(^)())handlerBlock
+- (void)showImageWithDict:(NSDictionary *)imgDict play:(NSDictionary *)mp3Dict senceid:(NSString *)senceid handler:(void (^)())handlerBlock
 {
     //得到mp3字典
     self.mp3Dict = mp3Dict;
@@ -145,6 +145,7 @@
     _scrollView.delegate = self;
     _scrollView.pagingEnabled = YES;
     [self.view addSubview:_scrollView];
+    self.view.backgroundColor = [UIColor whiteColor];
 }
 - (void)requestDataWithSenceid:(NSString *)senceid completion:(void (^)(NSDictionary *imageDict,NSDictionary *mp3Dict))completion
 {

@@ -42,7 +42,7 @@
     _saveBtn.layer.cornerRadius = 6;
     [_saveBtn setBackgroundColor:Color(234, 103, 37)];
     [self.view addSubview:_saveBtn];
-    self.view.backgroundColor = [UIColor clearColor];
+    self.view.backgroundColor = [UIColor whiteColor];
     
     UITapGestureRecognizer *gesture = [[UITapGestureRecognizer alloc]initWithTarget:self.view action:@selector(endEditing:)];
     [self.view addGestureRecognizer:gesture];
